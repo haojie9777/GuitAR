@@ -1,6 +1,7 @@
 import cv2
 import numpy
 import time
+import os
 
 
 class CaptureManager(object):
@@ -24,6 +25,8 @@ class CaptureManager(object):
         self._startTime = None
         self._framesElapsed = 0
         self._fpsEstimate = None
+        
+        self._screenshotPath = os.path.join(os.getcwd(),"screenshots")
 
     @property
     def channel(self):
@@ -102,12 +105,12 @@ class CaptureManager(object):
         # Release the frame.
         self._frame = None
         self._enteredFrame = False
-        print(self._fpsEstimate)
+        print("FPS: {}".format(self._fpsEstimate))
         
 
     def writeImage(self, filename):
         """Write the next exited frame to an image file."""
-        self._imageFilename = filename
+        self._imageFilename = os.path.join(self._screenshotPath,filename)
 
     def startWritingVideo(
             self, filename,

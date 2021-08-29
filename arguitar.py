@@ -1,4 +1,5 @@
 import cv2
+import time
 import filters
 from managers import WindowManager, CaptureManager
 
@@ -8,8 +9,6 @@ class ARGuitar(object):
         self._windowManager = WindowManager('ARGuitar',
                                             self.onKeypress)
         capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-        #capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        #capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self._captureManager = CaptureManager(
             capture, self._windowManager, True)
 
@@ -22,8 +21,8 @@ class ARGuitar(object):
             
             if frame is not None:
                 #do image processing
-                edges = filters.getCannyEdge(frame)
-                self._captureManager.frame = filters.applyHoughLines(edges,frame)
+                #edges = filters.getCannyEdge(frame)
+                #self._captureManager.frame = filters.applyHoughLines(edges,frame)
             
                 pass
 
@@ -37,7 +36,8 @@ class ARGuitar(object):
         escape -> Quit.
         """
         if keycode == 32: # space
-            self._captureManager.writeImage('screenshot.png')
+            self._captureManager.writeImage('{}.png'.format(time.strftime("%Y%m%d-%H%M%S")))
+            print("Took a screenshot")
         elif keycode == 9: # tab
             if not self._captureManager.isWritingVideo:
                 self._captureManager.startWritingVideo(
