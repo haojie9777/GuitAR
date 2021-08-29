@@ -1,4 +1,5 @@
 import cv2
+import filters
 from managers import WindowManager, CaptureManager
 
 class ARGuitar(object):
@@ -6,8 +7,11 @@ class ARGuitar(object):
     def __init__(self):
         self._windowManager = WindowManager('ARGuitar',
                                             self.onKeypress)
+        capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+        #capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        #capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self._captureManager = CaptureManager(
-            cv2.VideoCapture(0, cv2.CAP_DSHOW), self._windowManager, True)
+            capture, self._windowManager, True)
 
     def run(self):
         """Run the main loop."""
@@ -15,9 +19,11 @@ class ARGuitar(object):
         while self._windowManager.isWindowCreated:
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
-
+            
             if frame is not None:
-                # TODO: Filter the frame (Chapter 3).
+                #do image processing
+                self._captureManager.frame = filters.applyCannyEdge(frame)
+            
                 pass
 
             self._captureManager.exitFrame()

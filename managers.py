@@ -40,6 +40,10 @@ class CaptureManager(object):
             _, self._frame = self._capture.retrieve(
                     self._frame, self.channel)
         return self._frame
+    
+    @frame.setter
+    def frame(self,value):
+        self._frame = value
 
     @property
     def isWritingImage(self):
@@ -58,6 +62,7 @@ class CaptureManager(object):
 
         if self._capture is not None:
             self._enteredFrame = self._capture.grab()
+        
 
     def exitFrame(self):
         """Draw to the window. Write to files. Release the frame."""
@@ -67,6 +72,7 @@ class CaptureManager(object):
         if self.frame is None:
             self._enteredFrame = False
             return
+        
 
         # Update the FPS estimate and related variables.
         if self._framesElapsed == 0:
@@ -95,6 +101,8 @@ class CaptureManager(object):
         # Release the frame.
         self._frame = None
         self._enteredFrame = False
+        print(self._fpsEstimate)
+        
 
     def writeImage(self, filename):
         """Write the next exited frame to an image file."""
