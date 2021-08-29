@@ -22,7 +22,8 @@ class ARGuitar(object):
             
             if frame is not None:
                 #do image processing
-                self._captureManager.frame = filters.applyCannyEdge(frame)
+                edges = filters.getCannyEdge(frame)
+                self._captureManager.frame = filters.applyHoughLines(edges,frame)
             
                 pass
 

@@ -14,6 +14,7 @@ class CaptureManager(object):
         self._capture = capture
         self._channel = 0
         self._enteredFrame = False
+        self._unmodifiedFrame = None
         self._frame = None
         self._imageFilename = None
         self._videoFilename = None
@@ -62,6 +63,7 @@ class CaptureManager(object):
 
         if self._capture is not None:
             self._enteredFrame = self._capture.grab()
+            self._unmodifiedFrame = self._enteredFrame
         
 
     def exitFrame(self):
@@ -73,7 +75,6 @@ class CaptureManager(object):
             self._enteredFrame = False
             return
         
-
         # Update the FPS estimate and related variables.
         if self._framesElapsed == 0:
             self._startTime = time.time()
