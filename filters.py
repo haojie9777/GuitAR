@@ -4,25 +4,18 @@ import math
 
 
 def applyGaussianBlur(frame):
-    result = cv2.GaussianBlur(frame,(7,7),1)
+    result = cv2.GaussianBlur(frame,(1,3),1)
     return result
     
 def getCannyEdge(frame):
-    blurFrame = applyGaussianBlur(frame)
-    grayFrame = cv2.cvtColor(blurFrame,cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(grayFrame,100,50)
+    grayFrame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(grayFrame,50,200,3)
     return edges
 
-def showCannyEdge(frame):
-    blurFrame = applyGaussianBlur(frame)
-    grayFrame = cv2.cvtColor(blurFrame,cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(grayFrame,100,50)
-    return edges
-    
 def applyHoughLines(edges,frame):
-    lines = cv2.HoughLines(edges,1, numpy.pi/180, 80,None,0,0)
-    
+    lines = cv2.HoughLinesP(edges,1, numpy.pi/180,50,None,50,10)
     # Draw the lines
+
     if lines is not None:
         for i in range(0, len(lines)):
             rho = lines[i][0][0]
@@ -34,6 +27,16 @@ def applyHoughLines(edges,frame):
             pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
             pt2 = (int(x0 - 1000*(-b)), int(y0 - 1000*(a)))
             cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
+    return frame
+
+def applyHoughLinesP(edges,frame):
+    lines = cv2.HoughLinesP(edges,1, numpy.pi/180,50,None,50,10)
+    # Draw the lines
+
+    if lines is not None:
+        for i in range(0, len(lines)):
+            l = lines[i][0]
+            cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,255,0), 1, cv2.LINE_AA)
     return frame
     
     
