@@ -16,6 +16,7 @@ class CaptureManager(object):
         self._channel = 0
         self._enteredFrame = False
         self._unmodifiedFrame = None
+        self._firstFrame = None
         self._frame = None
         self._imageFilename = None
         self._videoFilename = None
@@ -25,6 +26,7 @@ class CaptureManager(object):
         self._startTime = None
         self._framesElapsed = 0
         self._fpsEstimate = None
+       
         
         self._screenshotPath = os.path.join(os.getcwd(),"screenshots")
 
