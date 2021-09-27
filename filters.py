@@ -9,7 +9,7 @@ def applyGaussianBlur(frame):
     
 def getCannyEdge(frame):
     grayFrame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(grayFrame,50,200,3)
+    edges = cv2.Canny(grayFrame,100,200,3)
     return edges
 
 def applyHoughLines(edges,frame):
@@ -38,6 +38,20 @@ def applyHoughLinesP(edges,frame):
             l = lines[i][0]
             cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,255,0), 1, cv2.LINE_AA)
     return frame
+
+def applyDilation(frame):
+    kernel = numpy.ones((3,3),numpy.uint8)
+    return cv2.dilate(frame,kernel, iterations=1)
+
+def applySobelX(frame):
+    sobelx = cv2.Sobel(frame,cv2.CV_64F,1,0,ksize=5)
+    return sobelx
+
+def applySobelY(frame):
+    sobely = cv2.Sobel(frame,cv2.CV_64F,0,1,ksize=5)
+    return sobely
+
+    
     
     
 

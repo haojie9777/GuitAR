@@ -23,6 +23,7 @@ class ARGuitar(object):
                 #do image processing
                 edges = filters.getCannyEdge(frame)
                 #frame = filters.applyHoughLinesP(edges,frame)
+                #self._captureManager.frame = filters.applyDilation(edges)
                 self._captureManager.frame = edges
                 #self._captureManager.frame = filters.applyHoughLines(edges,frame)
             
