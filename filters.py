@@ -12,6 +12,14 @@ def getCannyEdge(frame):
     edges = cv2.Canny(grayFrame,100,200,3)
     return edges
 
+def drawContours(edges,frame):
+    contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
+    cv2.drawContours(frame,edges, -1, (0,255,0),3)
+
+    
+    
+    
+    
 def applyHoughLines(edges,frame):
     lines = cv2.HoughLinesP(edges,1, numpy.pi/180,50,None,50,10)
     # Draw the lines
@@ -51,7 +59,7 @@ def applySobelY(frame):
     sobely = cv2.Sobel(frame,cv2.CV_64F,0,1,ksize=5)
     return sobely
 
-    
+
     
     
 
