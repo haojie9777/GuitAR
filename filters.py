@@ -14,7 +14,7 @@ def getCannyEdge(frame):
 
 def drawContours(edges,frame):
     contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
-    cv2.drawContours(frame,edges, -1, (0,255,0),3)
+    cv2.drawContours(frame,contours, -1, (0,255,0),2)
 
     
     
@@ -40,6 +40,8 @@ def applyHoughLines(edges,frame):
 def applyHoughLinesP(edges,frame):
     lines = cv2.HoughLinesP(edges,1, numpy.pi/180,50,None,50,10)
     # Draw the lines
+    
+    #lines is array consisting of lines w 4 values(start,start,end,end)
 
     if lines is not None:
         for i in range(0, len(lines)):
@@ -58,6 +60,14 @@ def applySobelX(frame):
 def applySobelY(frame):
     sobely = cv2.Sobel(frame,cv2.CV_64F,0,1,ksize=5)
     return sobely
+
+def drawPoly(frame, pts: numpy.array):
+    isClosed = True
+    color = (0,255,0)
+    thickness = 2
+    
+    return cv2.polylines(frame, [pts], isClosed, color, thickness)
+    
 
 
     

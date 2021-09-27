@@ -1,5 +1,6 @@
 import cv2
 import time
+import numpy
 import filters
 from managers import WindowManager, CaptureManager
 
@@ -22,11 +23,14 @@ class ARGuitar(object):
             if frame is not None:
                 #do image processing
                 edges = filters.getCannyEdge(frame)
-                #frame = filters.applyHoughLinesP(edges,frame)
-                #self._captureManager.frame = filters.applyDilation(edges)
-                self._captureManager.frame = edges
-                #self._captureManager.frame = filters.applyHoughLines(edges,frame)
-            
+                #edges = filters.applyDilation(edges)
+                #filters.drawContours(edges,frame)
+                frame = filters.applyHoughLinesP(edges,frame)
+               
+                #frame = filters.drawPoly(frame,numpy.array([[0,0],[0,300],[300,300]],numpy.int32))
+               
+               #add final image to display
+                self._captureManager.frame = frame
                 pass
 
             self._captureManager.exitFrame()
