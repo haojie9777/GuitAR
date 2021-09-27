@@ -16,10 +16,6 @@ def drawContours(edges,frame):
     contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
     cv2.drawContours(frame,contours, -1, (0,255,0),2)
 
-    
-    
-    
-    
 def applyHoughLines(edges,frame):
     lines = cv2.HoughLinesP(edges,1, numpy.pi/180,50,None,50,10)
     # Draw the lines
@@ -68,7 +64,25 @@ def drawPoly(frame, pts: numpy.array):
     
     return cv2.polylines(frame, [pts], isClosed, color, thickness)
     
-
+def applyHoughCircles(frame):
+    img = cv2.medianBlur(frame,5)
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    
+    circles = cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,1,20,
+                            param1=50,param2=30,minRadius=0,maxRadius=50)
+    if circles is None:
+        return img
+    circles = numpy.uint16(numpy.around(circles))
+    for i in circles[0,:]:
+        # draw the outer circle
+        cv2.circle(img,(i[0],i[1]),i[2],(0,255,0),2)
+        # draw the center of the circle
+        cv2.circle(img,(i[0],i[1]),2,(0,0,255),3)
+    return img
+    
+    
+    
+    
 
     
     

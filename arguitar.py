@@ -25,12 +25,14 @@ class ARGuitar(object):
                 edges = filters.getCannyEdge(frame)
                 #edges = filters.applyDilation(edges)
                 #filters.drawContours(edges,frame)
-                frame = filters.applyHoughLinesP(edges,frame)
+                #frame = filters.applyHoughLinesP(edges,frame)
+                
+                circlesFound = filters.applyHoughCircles(frame)
                
                 #frame = filters.drawPoly(frame,numpy.array([[0,0],[0,300],[300,300]],numpy.int32))
                
                #add final image to display
-                self._captureManager.frame = frame
+                self._captureManager.frame = circlesFound
                 pass
 
             self._captureManager.exitFrame()
