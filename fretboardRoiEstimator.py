@@ -26,8 +26,18 @@ class FretboardRoiEstimator():
 
         # draw only keypoints location,not size and orientation
         img = cv2.drawKeypoints(frame, kp, None, color=(0,255,0), flags=0)
+    
+        return img
+    
+    def detectSIFTKeypoints(self, frame):
+        gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         
+        sift = cv2.SIFT()
+        kp = sift.detect(gray,None)
+        
+        img = cv2.drawKeypoints(frame,kp)
         
         return img
+        
 
     
