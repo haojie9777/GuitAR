@@ -7,6 +7,7 @@ import fretboardRoiEstimator
 
 capture = cv.VideoCapture(0,cv.CAP_DSHOW)
 
+fretboardRoiEstimator = fretboardRoiEstimator.FretboardRoiEstimator()
 
 roiSelected = False
 savedFrame = np.array(0)
