@@ -1,8 +1,15 @@
 import cv2
-import numpy
+import numpy as np
 
 
 class FretboardRoiEstimator():
+    
+    hasFretboardKeyPoints = False
+    fretboardKeyPoints = np.array(0)
+    fretboardKeyPointsImage = np.array(0)
+
+    
+   
     
     def roiSelector(self, frame):
         r = cv2.selectROI(frame)
@@ -23,21 +30,36 @@ class FretboardRoiEstimator():
         
         # compute the descriptors with ORB
         kp, des = orb.compute(frame, kp)
+        
+        self.fretboardKeyPoints = kp
+        self.hasFretboardKeyPoints = True
 
         # draw only keypoints location,not size and orientation
-        img = cv2.drawKeypoints(frame, kp, None, color=(0,255,0), flags=0)
+        self.fretboardKeyPointsImage = cv2.drawKeypoints(frame, kp, None, color=(0,255,0), flags=0)
     
-        return img
     
     def detectSIFTKeypoints(self, frame):
         gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         
-        sift = cv2.SIFT()
+        #initialize SIFT object
+        sift = cv2.SIFT_create()
+        
         kp = sift.detect(gray,None)
+        self.fretboardKeyPoints = kp
+        self.hasFretboardKeyPoints = True
         
-        img = cv2.drawKeypoints(frame,kp)
+        self.fretboardKeyPointsImage = cv2.drawKeypoints(frame,kp, None, color=(0,255,0),flags=0)
         
-        return img
+    
+    #return keypoints of fretboard if available
+    def getFretboardKeypoints(self):
+        if self.hasFretboardKeyPoints:
+            return self.fretboardKeyPoints
+    
+    #return keypoints image of fretboard if available
+    def getFretboardKeypointsImage(self):
+        if self.hasFretboardKeyPoints:
+            return self.fretboardKeyPointsImage
         
 
     

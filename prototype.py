@@ -16,22 +16,34 @@ savedFrame = np.array(0)
 if not capture.isOpened():
     raise IOError("Cannot open webcam")
 
+count = 0
 while True:
     ret, frame = capture.read()
     #to allow video feed to mirror user's setup
     frame = cv.flip(frame,1)
     cv.imshow('Input', frame)
-    savedFrame = frame
-    if cv.waitKey(20) & 0xFF==ord("d"):
+   
+    #perform keypoint detection of fretboard
+    if cv.waitKey(10) & 0xFF==ord(" ") and fretboardRoiEstimator.hasFretboardKeyPoints == False:
+        roi = fretboardRoiEstimator.roiSelector(frame)
+        kpImage = fretboardRoiEstimator.detectSIFTKeypoints(roi)
+        
+    #savedFrame = frame
+    if cv.waitKey(10) & 0xFF==ord("d"):
         break
+    
+if fretboardRoiEstimator.hasFretboardKeyPoints:
+    cv.imshow("keypoints",fretboardRoiEstimator.getFretboardKeypointsImage())
+    cv.waitKey(0)
+        
 
-roi = fretboardRoiEstimator.roiSelector(savedFrame)
-cv.imshow('ROI',roi)
-cv.waitKey(0)
+# roi = fretboardRoiEstimator.roiSelector(savedFrame)
+# cv.imshow('ROI',roi)
+# cv.waitKey(0)
 
-keypoints = fretboardRoiEstimator.detectORBKeypoints(roi)
-cv.imshow("ORB keypoints",keypoints)
-cv.waitKey(0)    
+# keypoints = fretboardRoiEstimator.detectSIFTKeypoints(roi)
+# cv.imshow("SIFT keypoints",keypoints)
+# cv.waitKey(0)    
 
 
 #cleanup
