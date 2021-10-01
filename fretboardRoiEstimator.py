@@ -83,4 +83,26 @@ class FretboardRoiEstimator():
         return matches
         
         
+    def getHomographyMatrix(self, kp1, kp2, matches):
+        
+        # Sort them in the order of their distance.
+        matches = sorted(matches, key = lambda x:x.distance)
+        matches = matches[:10]
+        
+        src_pts = np.float32([ kp1[m.queryIdx].pt for m in matches ]).reshape(-1,1,2)
+        dst_pts = np.float32([ kp2[m.trainIdx].pt for m in matches ]).reshape(-1,1,2)
+        homographyMatrix, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
+        
+        mask = mask.ravel().tolist()
+        
+        return homographyMatrix, mask
     
+    def getBoundingBox(self, homographyMatrix):
+        roi = self.getFretboardKeypointsImage()
+        h,w = roi.shape[:2]
+        pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
+        dst = cv2.perspectiveTransform(pts,homographyMatrix)
+        dst += (w, 0)  # adding offset
+        return dst
+        
+       

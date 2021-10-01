@@ -52,7 +52,20 @@ while True:
 #     matches = fretboardRoiEstimator.getKeyPointMatches(des)
 #     match = matches
 
-matchImg = cv.drawMatches(fretboardRoiEstimator.getFretboardKeypointsImage(),fretboardRoiEstimator.getFretboardKeypoints(),savedFrame,kp,match[:50],None, flags=2)
+
+#get homography matrix and mask
+h,mask = fretboardRoiEstimator.getHomographyMatrix(fretboardRoiEstimator.getFretboardKeypoints(),kp,match)
+
+#get bounding box pts
+dst = fretboardRoiEstimator.getBoundingBox(h)
+
+matchImg = cv.drawMatches(
+    fretboardRoiEstimator.getFretboardKeypointsImage(),
+    fretboardRoiEstimator.getFretboardKeypoints(),savedFrame,kp,match[:10],
+    None,matchesMask=mask, flags=2)
+# Draw bounding box in Red
+matchImg = cv.polylines(matchImg, [np.int32(dst)], True, (0,0,255),3, cv.LINE_AA, shift=0)
+
 cv.imshow("matches",matchImg)
 
 # cv.imshow("frame",savedFrame)
