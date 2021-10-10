@@ -77,17 +77,31 @@ class FretboardRoiEstimator():
         
         des1 = self.fretboardKeyPointsDes
         #feature matching
-        bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
-        matches = bf.match(des1, des2)
-        matches = sorted(matches, key = lambda x:x.distance)
-        return matches
+        # bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
+        # matches = bf.match(des1, des2)
+        # matches = sorted(matches, key = lambda x:x.distance)
+        
+        FLANN_INDEX_KDTREE = 0
+        index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+        search_params = dict(checks = 50)
+
+        flann = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = flann.knnMatch(des1,des2,k=2)
+    
+        good =[]
+      
+        for m,n in matches:
+            if m.distance < 0.7*n.distance:
+                good.append(m)
+        return good
+        #return matches
         
         
     def getHomographyMatrix(self, kp1, kp2, matches):
         
         # Sort them in the order of their distance.
-        matches = sorted(matches, key = lambda x:x.distance)
-        matches = matches[:10]
+        #matches = sorted(matches, key = lambda x:x.distance)
+        #matches = matches[:10]
         
         src_pts = np.float32([ kp1[m.queryIdx].pt for m in matches ]).reshape(-1,1,2)
         dst_pts = np.float32([ kp2[m.trainIdx].pt for m in matches ]).reshape(-1,1,2)
@@ -98,11 +112,10 @@ class FretboardRoiEstimator():
         return homographyMatrix, mask
     
     def getBoundingBox(self, homographyMatrix):
-        roi = self.getFretboardKeypointsImage()
-        h,w = roi.shape[:2]
+        h,w = self.getFretboardKeypointsImage().shape[:2]
         pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
         dst = cv2.perspectiveTransform(pts,homographyMatrix)
-        dst += (w, 0)  # adding offset
+        #dst += (w, 0)  # adding offset
         return dst
         
        

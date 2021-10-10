@@ -27,8 +27,7 @@ while True:
     keyPoints,des = fretboardRoiEstimator.detectSIFTKeypoints(frame)
     kp = keyPoints
     if fretboardRoiEstimator.hasFretboardKeyPoints:
-        matches = fretboardRoiEstimator.getKeyPointMatches(des)
-        match = matches
+        match = fretboardRoiEstimator.getKeyPointMatches(des)
        
 
     #perform inital roi cropping and getting of keypoints of fretboard
@@ -41,17 +40,6 @@ while True:
         savedFrame = frame
         break  # esc to quit
     
-# if fretboardRoiEstimator.hasFretboardKeyPoints:
-#     # cv.imshow("keypoints",fretboardRoiEstimator.getFretboardKeypointsImage())
-#     # cv.waitKey(0)
-
- 
-# keyPoints,des = fretboardRoiEstimator.detectSIFTKeypoints(savedFrame)
-# kp = keyPoints
-# if fretboardRoiEstimator.hasFretboardKeyPoints:
-#     matches = fretboardRoiEstimator.getKeyPointMatches(des)
-#     match = matches
-
 
 #get homography matrix and mask
 h,mask = fretboardRoiEstimator.getHomographyMatrix(fretboardRoiEstimator.getFretboardKeypoints(),kp,match)
@@ -59,20 +47,19 @@ h,mask = fretboardRoiEstimator.getHomographyMatrix(fretboardRoiEstimator.getFret
 #get bounding box pts
 dst = fretboardRoiEstimator.getBoundingBox(h)
 
+savedFrame = cv.polylines(savedFrame,[np.int32(dst)],True,(0,255,255),3,cv.LINE_AA)
+
 matchImg = cv.drawMatches(
     fretboardRoiEstimator.getFretboardKeypointsImage(),
-    fretboardRoiEstimator.getFretboardKeypoints(),savedFrame,kp,match[:10],
-    None,matchesMask=mask, flags=2)
-# Draw bounding box in Red
-matchImg = cv.polylines(matchImg, [np.int32(dst)], True, (0,0,255),3, cv.LINE_AA, shift=0)
+    fretboardRoiEstimator.getFretboardKeypoints(),savedFrame,kp,match,
+    None,matchesMask=mask #draw only inliners
+    , flags=2)
+
+#matchImg = cv.polylines(matchImg, [np.int32(dst)], True, (0,0,255),3, cv.LINE_AA)
 
 cv.imshow("matches",matchImg)
-
-# cv.imshow("frame",savedFrame)
-# cv.imshow("saved guitar neck",fretboardRoiEstimator.getFretboardKeypointsImage())
 cv.waitKey(0)
         
-
 #cleanup
 capture.release()
 cv.destroyAllWindows()
