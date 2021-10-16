@@ -81,12 +81,39 @@ class FretboardRoiEstimator():
         # matches = bf.match(des1, des2)
         # matches = sorted(matches, key = lambda x:x.distance)
         
+    
         FLANN_INDEX_KDTREE = 0
         index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
         search_params = dict(checks = 50)
 
         flann = cv2.FlannBasedMatcher(index_params, search_params)
         matches = flann.knnMatch(des1,des2,k=2)
+    
+        good =[]
+      
+        for m,n in matches:
+            if m.distance < 0.7*n.distance:
+                good.append(m)
+        return good
+        #return matches
+        
+        
+        
+    #return matches between frame keypoints des and roi fretboar keypoint des
+    def getKeyPointMatchesGeneric(self, des1, des2):
+        
+        #feature matching
+        # bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
+        # matches = bf.match(des1, des2)
+        # matches = sorted(matches, key = lambda x:x.distance)
+        
+        FLANN_INDEX_KDTREE = 0
+        index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+        search_params = dict(checks = 50)
+
+        flann = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = flann.knnMatch(des1,des2,k=2)
+        
     
         good =[]
       
