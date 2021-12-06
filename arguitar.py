@@ -24,22 +24,21 @@ class ARGuitar(object):
                 #do image processing
                 
                 # 1.blur/averaging filter
-                #bilateralFilteredFrame = filters.applyBilateralFilter(frame)
                 gaussianFiltered = filters.applyGaussianBlur(frame)
+                #medianBlurred = filters.applyMedianBlur(frame)
                 
                 # 2.Canny edge detection
-                edges = filters.getCannyEdge(gaussianFiltered)
+                edges = filters.autoCannyEdge(gaussianFiltered)
                 
                 # 3.Dilation to enlarge edges
-                edges = filters.applyDilation(edges)
+                #edges = filters.applyDilation(edges)
                 
-                blurredEdges = cv2.blur(edges,(2,2)) #averaging
     
                 # 4.Hough line detection
-                #frame = filters.applyHoughLinesP(edges,frame)
+                frame = filters.applyHoughLinesP(edges,frame)
                 
                #add final image to display
-                self._captureManager.frame = blurredEdges
+                self._captureManager.frame = frame
                 pass
 
             self._captureManager.exitFrame()

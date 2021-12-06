@@ -4,7 +4,7 @@ import math
 
 
 def applyGaussianBlur(frame):
-    result = cv2.GaussianBlur(frame,(1,3),1)
+    result = cv2.GaussianBlur(frame,(3,3),0)
     return result
     
 def getCannyEdge(frame):
@@ -13,8 +13,20 @@ def getCannyEdge(frame):
     #threshold1, threshold 2. Higher -> less detection
     #recommended threshold ratio 1:2, 1:3
     
-    edges = cv2.Canny(grayFrame,100,200,3) #with monitor light on
+    edges = cv2.Canny(grayFrame,100,300,3) #with monitor light on
     return edges
+
+#play around with monitor light to ensure most of the lines are detected
+def autoCannyEdge(image, sigma=0.33):
+        grayFrame = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    	# compute the median of the single channel pixel intensities
+        v = numpy.median(image)
+        # apply automatic Canny edge detection using the computed median
+        lower = int(max(0, (1.0 - sigma) * v))
+        upper = int(min(255, (1.0 + sigma) * v))
+        edged = cv2.Canny(grayFrame, lower, upper)
+        # return the edged image
+        return edged
 
 def drawContours(edges,frame):
     contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
@@ -38,11 +50,11 @@ def applyHoughLines(edges,frame):
     return frame
 
 def applyHoughLinesP(edges,frame):
-    lines = cv2.HoughLinesP(edges,1, numpy.pi/180,50,None,50,10)
-    # Draw the lines
+    #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
+    lines = cv2.HoughLinesP(edges,1, numpy.pi/180,50,None,100,5)
     
-    #lines is array consisting of lines w 4 values(start,start,end,end)
-
+    
+    # Draw the lines
     if lines is not None:
         for i in range(0, len(lines)):
             l = lines[i][0]
@@ -64,8 +76,10 @@ def applySobelY(frame):
     return sobely
 
 def applyBilateralFilter(frame):
-    return cv2.bilateralFilter(frame, 9, 75, 75)
+    return cv2.bilateralFilter(frame, 5, 75, 75)
     
+def applyMedianBlur(frame):
+    return cv2.medianBlur(frame, 5)
 
 def drawPoly(frame, pts: numpy.array):
     isClosed = True
