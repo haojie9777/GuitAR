@@ -9,7 +9,11 @@ def applyGaussianBlur(frame):
     
 def getCannyEdge(frame):
     grayFrame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(grayFrame,100,200,3)
+    
+    #threshold1, threshold 2. Higher -> less detection
+    #recommended threshold ratio 1:2, 1:3
+    
+    edges = cv2.Canny(grayFrame,100,200,3) #with monitor light on
     return edges
 
 def drawContours(edges,frame):
