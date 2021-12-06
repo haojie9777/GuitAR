@@ -50,7 +50,9 @@ def applyHoughLinesP(edges,frame):
     return frame
 
 def applyDilation(frame):
-    kernel = numpy.ones((3,3),numpy.uint8)
+    #kernel = numpy.ones((3,3),numpy.uint8)
+    kernel = numpy.ones((2,2),numpy.uint8)
+    
     return cv2.dilate(frame,kernel, iterations=1)
 
 def applySobelX(frame):
@@ -60,6 +62,10 @@ def applySobelX(frame):
 def applySobelY(frame):
     sobely = cv2.Sobel(frame,cv2.CV_64F,0,1,ksize=5)
     return sobely
+
+def applyBilateralFilter(frame):
+    return cv2.bilateralFilter(frame, 9, 75, 75)
+    
 
 def drawPoly(frame, pts: numpy.array):
     isClosed = True
