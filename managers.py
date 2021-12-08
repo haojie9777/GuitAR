@@ -107,7 +107,8 @@ class CaptureManager(object):
         # Release the frame.
         self._frame = None
         self._enteredFrame = False
-        print("FPS: {}".format(self._fpsEstimate))
+        if self._framesElapsed and self._framesElapsed%60 == 0:
+            print("FPS: {}".format(int(self._fpsEstimate)))
         
 
     def writeImage(self, filename):

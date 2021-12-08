@@ -1,7 +1,7 @@
 import cv2
 import time
-import numpy
 import filters
+import guitar
 from managers import WindowManager, CaptureManager
 
 class ARGuitar(object):
@@ -20,22 +20,41 @@ class ARGuitar(object):
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
             
+            guitarObject = guitar.Guitar()
+            
             if frame is not None:
                 #do image processing
                 
                 # 1.blur/averaging filter
                 gaussianFiltered = filters.applyGaussianBlur(frame)
                 #medianBlurred = filters.applyMedianBlur(frame)
+                #thresh = filters.applyThreshold(gaussianFiltered)
                 
                 # 2.Canny edge detection
                 edges = filters.autoCannyEdge(gaussianFiltered)
+             
                 
                 # 3.Dilation to enlarge edges
                 #edges = filters.applyDilation(edges)
                 
+                #3.5 sobel filters to accentuate vertical/horizontal edges
+                verticalEdges = filters.applySobelX(edges)
+                # horizontalEdges = filters.applySobelY(edges)
+                
     
-                # 4.Hough line detection
-                frame = filters.applyHoughLinesP(edges,frame)
+                # 4.Get raw houghLines lines
+                #frame = filters.applyHoughLines(edges, frame)
+                frame = filters.applyHoughLinesP(edges, frame)
+            
+                #process vertical lines to get frets
+                #unprocessedLines = filters.getHoughLinesP(verticalEdges, frame)
+                
+                
+                
+                # 5. process lines
+                
+                # 2 stages of line detection, 1 for strings(horizontal) and 1 for frets (vertical)
+            
                 
                #add final image to display
                 self._captureManager.frame = frame
