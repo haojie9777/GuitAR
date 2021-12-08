@@ -43,15 +43,15 @@ class ARGuitar(object):
                 
     
                 # 4.Get raw houghLines lines
-                #frame = filters.applyHoughLines(edges, frame)
-                frame = filters.applyHoughLinesP(edges, frame)
+                frame = filters.applyHoughLines(edges, frame)
+                #frame = filters.applyHoughLinesP(edges, frame)
             
                 #process vertical lines to get frets
                 #unprocessedLines = filters.getHoughLinesP(verticalEdges, frame)
                 
                 
                 
-                # 5. process lines
+                # 5. process liness
                 
                 # 2 stages of line detection, 1 for strings(horizontal) and 1 for frets (vertical)
             
