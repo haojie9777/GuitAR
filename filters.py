@@ -1,7 +1,7 @@
 import cv2
 import numpy
 import math
-import processing
+import houghProcessing
 
 
 def applyGaussianBlur(frame):
@@ -34,14 +34,12 @@ def drawContours(edges,frame):
     cv2.drawContours(frame,contours, -1, (0,255,0),2)
 
 def applyHoughLines(edges,frame): 
+    #lines = cv2.HoughLines(edges, 1, 2*numpy.pi / 180, 150)
     lines = cv2.HoughLines(edges, 1, 2*numpy.pi / 180, 150)
-    lines = cv2.HoughLines(edges, 1, 2*numpy.pi / 180, 100)
-
-    
     # Draw the lines
     
     #remove lines similar to one another
-    #lines = processing.removeDuplicateLines(lines)
+    lines = houghProcessing.removeDuplicateLines(lines)
     
     if lines is not None:
         for i in range(0, len(lines)):
@@ -60,25 +58,28 @@ def applyHoughLinesP(edges, frame):
     #lines = cv2.HoughLinesP(edges, rho=1, theta=numpy.pi / 180
     #,threshold=50, minLineLength=30, maxLineGap=5)
     
-    lines = cv2.HoughLinesP(edges, rho=1, theta=numpy.pi / 180
-    ,threshold=50, minLineLength=50, maxLineGap=2)
-    
+    lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * numpy.pi / 180
+    ,threshold=30, minLineLength=30, maxLineGap=3)
+    #print(houghProcessing.returnAngleOfLine(lines))
     
     # Draw the lines
     if lines is not None:
         for i in range(0, len(lines)):
             l = lines[i][0]
             
-            #attempt to show only short lines
-            distance = math.sqrt( (l[2] - l[0])**2 + (l[3]- l[1])**2)
-            if distance < 200:
-                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,255,0), 1, cv2.LINE_AA)
+            # #attempt to show only short lines
+            # distance = math.sqrt( (l[2] - l[0])**2 + (l[3]- l[1])**2)
+            # if distance < 200:
+            slope = houghProcessing.returnSlopeOfLine(l)
+            if slope < 100 and slope >= 1:
+                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,255,255), 1, cv2.LINE_AA)
     return frame
 
 
 def getHoughLinesP(edges):
     #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
-    lines = cv2.HoughLinesP(edges,1, numpy.pi/180,10,None,50,5)
+    lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * numpy.pi / 180
+    ,threshold=30, minLineLength=30, maxLineGap=3)
     return lines
 
     
@@ -93,14 +94,14 @@ def getHoughLines(edges):
     lines = cv2.HoughLines(edges, 1, numpy.pi / 180, 150)
     
     #remove lines similar to one another
-    lines = processing.removeDuplicateLines(lines)
+    lines = houghProcessing.removeDuplicateLines(lines)
     return lines
 
  
 
 def applyDilation(frame):
     #kernel = numpy.ones((3,3),numpy.uint8)
-    kernel = numpy.ones((2,2),numpy.uint8)
+    kernel = numpy.ones((3,3),numpy.uint8)
     return cv2.dilate(frame,kernel, iterations=1)
 
 def applyErosion(frame):
@@ -141,7 +142,7 @@ def applyThreshold(frame, type = "adaptive"):
         thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
             cv2.THRESH_BINARY,11,2)
     else:
-        thresh = cv2.threshold(gray, 110, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)[1]
         
     return thresh
 

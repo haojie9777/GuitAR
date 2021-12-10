@@ -3,29 +3,6 @@ import numpy as np
 import math
 from collections import defaultdict
 
-def removeDuplicateLines(lines):
-    if lines is None:
-        return
-    strong_lines = np.zeros([10,1,2])
-        
-    n2 = 0
-    for n1 in range(0,len(lines)):
-        for rho,theta in lines[n1]:
-            if n1 == 0:
-                strong_lines[n2] = lines[n1]
-                n2 = n2 + 1
-            else:
-                if rho < 0:
-                    rho*=-1
-                    theta-=np.pi
-                closeness_rho = np.isclose(rho,strong_lines[0:n2,0,0],atol = 10)
-                closeness_theta = np.isclose(theta,strong_lines[0:n2,0,1],atol = np.pi/36)
-                closeness = np.all([closeness_rho,closeness_theta],axis=0)
-                if not any(closeness) and n2 < 10:
-                        strong_lines[n2] = lines[n1]
-                        n2 = n2 + 1
-    return strong_lines
-
 
 def drawVerticalLines(lines, frame):
     if lines is None:
@@ -39,12 +16,12 @@ import numpy as np
 def removeDuplicateLines(lines):
     if lines is None:
         return
-    strong_lines = np.zeros([9,1,2])
+    strong_lines = np.zeros([6,1,2])
         
     n2 = 0
     for n1 in range(0,len(lines)):
         for rho,theta in lines[n1]:
-            if n2 == 7: #added this line
+            if n2 == 6: #added this line
                 break
             if n1 == 0:
                 strong_lines[n2] = lines[n1]
@@ -56,17 +33,14 @@ def removeDuplicateLines(lines):
                 closeness_rho = np.isclose(rho,strong_lines[0:n2,0,0],atol = 10)
                 closeness_theta = np.isclose(theta,strong_lines[0:n2,0,1],atol = np.pi/36)
                 closeness = np.all([closeness_rho,closeness_theta],axis=0)
-                if not any(closeness) and n2 < 9:
+                if not any(closeness) and n2 < 6:
                         strong_lines[n2] = lines[n1]
                         n2 = n2 + 1
+                        
+    #maybe remove line that has a very different theta than the rest 
     return strong_lines
 
 
-def drawVerticalLines(lines, frame):
-    if lines is None:
-        return
-    
-    
 def drawFrets(lines,frame):
     if lines is None:
         return
@@ -117,7 +91,35 @@ def segment_by_angle_kmeans(lines, k=2, **kwargs):
     segmented = list(segmented.values())
     print(segmented)
     return segmented
+
+'''converts houghlinep's output of 2 points into a list of tuple
+of angle and distance'''
+def returnAngleOfLine(line):
+    if line is None:
+        return
+    angle = round(float(math.atan2(line[1]-line[3], line[0]-line[2]) * 180/math.pi),2)
+    #distance = round(float(math.sqrt( (line[1]-line[3])**2 + (line[0]-line[2])**2 )),2)
+    return angle
+
+def returnSlopeOfLine(line):
+    if line is None:
+        return
+    dx = (line[2]- line[0])
+    #return 100 instead of infinity if slope is vertical
+    if dx == 0 :
+        return 100
+    slope = round((line[3] - line[1]) / dx,2)
+  
+    return slope
+        
+        
+        
     
-            
-    
-    
+
+
+
+
+
+        
+        
+        

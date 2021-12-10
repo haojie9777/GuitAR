@@ -26,21 +26,20 @@ class ARGuitar(object):
                 
                 # 1.blur/averaging filter
                 gaussianFiltered = filters.applyGaussianBlur(frame)
+                #eroded = filters.applyErosion(gaussianFiltered)
                 #medianBlurred = filters.applyMedianBlur(frame)
-                #thresh = filters.applyThreshold(gaussianFiltered)
+                #thresh = filters.applyThreshold(gaussianFiltered, "normal")
                 
                 # 2.Canny edge detection
                 edges = filters.autoCannyEdge(gaussianFiltered)
+                #edges = filters.autoCannyEdge(eroded)
              
                 
                 # 3.Dilation to enlarge edges
-                #edges = filters.applyDilation(edges)
-                #erodedFrame = filters.applyErosion(gaussianFiltered)
-                edges = filters.applyOpening(edges)
+                #dilated = filters.applyDilation(thresh)
+                #eroded = filters.applyErosion(gaussianFiltered)
                 
-    
-             
-
+           
                 
                 #3.5 sobel filters to accentuate vertical/horizontal edges
                 #verticalEdges = filters.applySobelX(edges)
@@ -49,8 +48,9 @@ class ARGuitar(object):
     
                 # 4.Get raw houghLines lines
                 #frame = filters.applyHoughLines(edges, frame)
-                #frame = filters.applyHoughLines(thresh, frame)
-                #frame = filters.applyHoughLinesP(edges, frame)
+                #frame = filters.applyHoughLines(edges, frame)
+                frame = filters.applyHoughLinesP(edges, frame)
+                frame = filters.applyHoughLines(edges,frame)
                 
             
                 #process vertical lines to get frets
@@ -63,7 +63,7 @@ class ARGuitar(object):
             
         
                #add final image to display
-                self._captureManager.frame = edges
+                self._captureManager.frame = frame
                 pass
 
             self._captureManager.exitFrame()
