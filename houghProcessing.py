@@ -4,6 +4,8 @@ import numpy as np
 import math
 from collections import defaultdict
 
+from numpy.lib.shape_base import expand_dims
+
 
 def drawVerticalLines(lines, frame):
     if lines is None:
@@ -42,7 +44,7 @@ def removeDuplicateLines(lines):
     return strong_lines
 
 
-def drawFrets(lines,frame):
+def drawStrings(lines,frame):
     if lines is None:
         return
 
@@ -56,8 +58,7 @@ def drawFrets(lines,frame):
         pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
         pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
         cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
-        print(theta)
-        return frame
+    return frame
     
     
 def segment_by_angle_kmeans(lines, k=2, **kwargs):
@@ -73,8 +74,6 @@ def segment_by_angle_kmeans(lines, k=2, **kwargs):
     flags = kwargs.get('flags', cv2.KMEANS_RANDOM_CENTERS)
     attempts = kwargs.get('attempts', 10)
     
-    #lines = removeDuplicateLines(lines)
-
     # returns angles in [0, pi] in radians
     angles = np.array([line[0][1] for line in lines])
     # multiply the angles by two and find coordinates of that angle
@@ -124,9 +123,10 @@ def applyHoughLines(edges,frame):
             pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
             pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
             cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
+    return frame
    
 def getHoughLines(edges): 
-    lines = cv2.HoughLines(edges, 1, np.pi / 180, 150)
+    lines = cv2.HoughLines(edges, 1, 2*np.pi / 180, 150)
     
     #remove lines similar to one another
     lines = removeDuplicateLines(lines)
@@ -160,6 +160,26 @@ def getHoughLinesP(edges):
     lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
     ,threshold=30, minLineLength=30, maxLineGap=3)
     return lines
+
+
+def processFretLines(lines):
+    if lines is None:
+        return
+    frets = []
+    for i in range(0, len(lines)):
+        l = lines[i][0]
+        slope = returnSlopeOfLine(l)
+        if (slope < 100) and (slope >= 1):
+            #remove lines that are not likely to be frets
+            frets.append(l)
+            
+    return frets #list of numpy arrays containing 4 points
+
+
+def processStringLines(lines):
+    if lines is None:
+        return
+    return
 
 
         
