@@ -47,10 +47,11 @@ class ARGuitar(object):
                 rawStringLines = houghProcessing.getHoughLines(edges)
             
                 # 5. process lines
-                frame = houghProcessing.drawStrings(rawStringLines, frame)
-                #print(processedFretLines)
+                processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
                 
                 # 6. draw to see
+                frame = houghProcessing.drawStrings(processedStringLines, frame)
+                #frame = houghProcessing.applyHoughLinesP(edges,frame)
                
                 
             

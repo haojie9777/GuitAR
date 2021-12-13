@@ -19,12 +19,12 @@ import numpy as np
 def removeDuplicateLines(lines):
     if lines is None:
         return
-    strong_lines = np.zeros([6,1,2])
+    strong_lines = np.zeros([8,1,2])
         
     n2 = 0
     for n1 in range(0,len(lines)):
         for rho,theta in lines[n1]:
-            if n2 == 6: #added this line
+            if n2 == 8: #added this line
                 return strong_lines
             if n1 == 0:
                 strong_lines[n2] = lines[n1]
@@ -36,7 +36,7 @@ def removeDuplicateLines(lines):
                 closeness_rho = np.isclose(rho,strong_lines[0:n2,0,0],atol = 10)
                 closeness_theta = np.isclose(theta,strong_lines[0:n2,0,1],atol = np.pi/36)
                 closeness = np.all([closeness_rho,closeness_theta],axis=0)
-                if not any(closeness) and n2 < 6:
+                if not any(closeness) and n2 < 8:
                         strong_lines[n2] = lines[n1]
                         n2 = n2 + 1
                         
@@ -46,11 +46,11 @@ def removeDuplicateLines(lines):
 
 def drawStrings(lines,frame):
     if lines is None:
-        return
+        return frame
 
     for i in range(0, len(lines)):
-        rho = lines[i][0][0]
-        theta = lines[i][0][1]
+        rho = lines[i][0]
+        theta = lines[i][1]
         a = math.cos(theta)
         b = math.sin(theta)
         x0 = a * rho
@@ -61,38 +61,6 @@ def drawStrings(lines,frame):
     return frame
     
     
-def segment_by_angle_kmeans(lines, k=2, **kwargs):
-    """Groups lines based on angle with k-means.
-
-    Uses k-means on the coordinates of the angle on the unit circle 
-    to segment `k` angles inside `lines`.
-    """
-
-    # Define criteria = (type, max_iter, epsilon)
-    default_criteria_type = cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER
-    criteria = kwargs.get('criteria', (default_criteria_type, 10, 1.0))
-    flags = kwargs.get('flags', cv2.KMEANS_RANDOM_CENTERS)
-    attempts = kwargs.get('attempts', 10)
-    
-    # returns angles in [0, pi] in radians
-    angles = np.array([line[0][1] for line in lines])
-    # multiply the angles by two and find coordinates of that angle
-    pts = np.array([[np.cos(2*angle), np.sin(2*angle)]
-                    for angle in angles], dtype=np.float32)
-
-    # run kmeans on the coords
-    labels, centers = cv2.kmeans(pts, k, None, criteria, attempts, flags)[1:]
-    labels = labels.reshape(-1)  # transpose to row vec
-
-    # segment lines based on their kmeans label
-    segmented = defaultdict(list)
-    for i, line in enumerate(lines):
-        segmented[labels[i]].append(line)
-    segmented = list(segmented.values())
-    print(segmented)
-    return segmented
-
-
 def returnSlopeOfLine(line):
     if line is None:
         return
@@ -176,10 +144,57 @@ def processFretLines(lines):
     return frets #list of numpy arrays containing 4 points
 
 
-def processStringLines(lines):
+def processStringLinesByKmeans(lines):
     if lines is None:
         return
-    return
+    
+    #saved as we need the rho at the end
+    originalLines = lines
+    
+    #remove rho from line array as we don't need it for cluster
+    #thetaArray is nxmxj, n is number of lines and n is column 
+    thetaArray = np.delete(lines,[0],2)
+
+    #8x1
+    thetaArray = np.reshape(thetaArray,(8,1))
+    thetaArray = np.float32(thetaArray)
+    
+    # Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+
+    # Set flags 
+    flags = cv2.KMEANS_RANDOM_CENTERS
+
+    # Apply KMeans
+    compactness,labels,centers = cv2.kmeans(thetaArray,2,None,criteria,10,flags)
+    a = thetaArray[labels==0]
+    b = thetaArray[labels==1]
+    
+    #Get majority cluster
+    if np.count_nonzero(a) > np.count_nonzero(b):
+        print(a)
+        originalLines = originalLines[labels==0]
+    else:
+        print(b)
+        originalLines = originalLines[labels==1]
+    
+    return originalLines
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+ 
 
 
         
