@@ -23,6 +23,9 @@ class ARGuitar(object):
         
             if frame is not None:
                 #do image processing
+             
+                
+                #halfFrame = frame[ frame.shape[0]//3 : frame.shape[0]]
                 
                 # 1.blur/averaging filter
                 gaussianFiltered = filters.applyGaussianBlur(frame)
@@ -48,12 +51,13 @@ class ARGuitar(object):
             
                 # 5. process lines by clustering
                 processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
-                
+          
+            
+          
                 # 6. draw to see
                 frame = houghProcessing.drawStrings(processedStringLines, frame)
-                #frame = houghProcessing.applyHoughLinesP(edges,frame)
+           
      
-        
                #add final image to display
                 self._captureManager.frame = frame
                 pass

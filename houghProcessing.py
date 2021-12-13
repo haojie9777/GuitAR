@@ -40,11 +40,16 @@ def drawStrings(lines,frame):
     for i in range(0, len(lines)):
         rho = lines[i][0]
         theta = lines[i][1]
+        #remove vertical lines and completed horizontal lines
+        if theta >= 1.5:
+            break
+        print(theta)
+    
         a = math.cos(theta)
         b = math.sin(theta)
         x0 = a * rho
         y0 = b * rho
-        pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
+        pt1 = (int(x0 + 300*(-b)), int(y0 + 300*(a)))
         pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
         cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
     return frame
@@ -132,11 +137,27 @@ def processFretLines(lines):
             
     return frets #list of numpy arrays containing 4 points
 
+def removeVerticalLines(lines):
+    result = []
+    if lines is None:
+        return result
+    for i in range(len(lines)):
+                if lines[i][0][1] <= 2:
+                    result.append(lines[i][0])
+    return result
 
+            
+    
+'''
+Remove unwanted lines detected, by using 2-means clustering
+lines belonging in the largest cluster are assumed to be detected strings,
+and will be returned
+'''
 def processStringLinesByKmeans(lines):
     if lines is None:
         return
     
+
     #saved as we need the rho at the end
     originalLines = lines
     
@@ -149,7 +170,8 @@ def processStringLinesByKmeans(lines):
     thetaArray = np.float32(thetaArray)
     
     # Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    #criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)\
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
 
     # Set flags 
     flags = cv2.KMEANS_RANDOM_CENTERS
@@ -159,17 +181,27 @@ def processStringLinesByKmeans(lines):
     a = thetaArray[labels==0]
     b = thetaArray[labels==1]
     
+   
     #Get majority cluster
     if np.count_nonzero(a) > np.count_nonzero(b):
         originalLines = originalLines[labels==0]
     else:
         originalLines = originalLines[labels==1]
-    
+        
     return originalLines
+        
+ 
+
+
+
+
+
+
+
+
+
     
-    
-    
-    
+
     
     
     
