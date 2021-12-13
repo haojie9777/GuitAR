@@ -1,20 +1,9 @@
-from typing import no_type_check_decorator
 import cv2
 import numpy as np
 import math
-from collections import defaultdict
-
-from numpy.lib.shape_base import expand_dims
 
 
-def drawVerticalLines(lines, frame):
-    if lines is None:
-        return
-    
-            
-    
-    import cv2
-import numpy as np
+
 
 def removeDuplicateLines(lines):
     if lines is None:
@@ -172,10 +161,8 @@ def processStringLinesByKmeans(lines):
     
     #Get majority cluster
     if np.count_nonzero(a) > np.count_nonzero(b):
-        print(a)
         originalLines = originalLines[labels==0]
     else:
-        print(b)
         originalLines = originalLines[labels==1]
     
     return originalLines

@@ -43,19 +43,16 @@ class ARGuitar(object):
                 
     
                 # 4.Get fret and string lines
-                rawFretLines = houghProcessing.getHoughLinesP(edges)
+                #rawFretLines = houghProcessing.getHoughLinesP(edges)
                 rawStringLines = houghProcessing.getHoughLines(edges)
             
-                # 5. process lines
+                # 5. process lines by clustering
                 processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
                 
                 # 6. draw to see
                 frame = houghProcessing.drawStrings(processedStringLines, frame)
                 #frame = houghProcessing.applyHoughLinesP(edges,frame)
-               
-                
-            
-    
+     
         
                #add final image to display
                 self._captureManager.frame = frame

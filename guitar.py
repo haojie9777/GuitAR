@@ -1,31 +1,36 @@
-
 import cv2
+import numpy as np
+import math
+from collections import defaultdict
+'''
+class to represent a guitar object and information about its string and frets.
+
+stringPoints: dictionary containing start and end coordinates of 6 strings
+e.g: stringPoints[1] = [(1,2), (3,4)]
+
+fretPoints: list containing tuples of start and end point of line denoting a fret
+e.g fretPoints[1] = [(1,2),(3,4)]
+'''
 class Guitar():
     
     def __init__(self):
-        self.stringPoints = [[] for i in range(6)]
-        self.fretPoints = [[] for i in range(5)]
+        self.stringPoints = defaultdict(None)
+        self.fretPoints = defaultdict(None)
         
+    def getStringPoints(self):
+        return self.stringPoints
     
-    # def processLines(lines):
-    #     if lines is None:
-    #         return
-    #     for line in lines:
-    #         if lines
-            
+    def getFretPoints(self):
+        return self.fretPoints
     
-        
-    def kMeansLines(self, lines):
-        if lines is None:
-            return
-        # Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-        # Set flags (Just to avoid line break in the code)
-        flags = cv2.KMEANS_RANDOM_CENTERS
-        # Apply KMeans
-        compactness,labels,centers = cv2.kmeans(lines,2,None,criteria,10,flags)
-        return centers
+  
         
         
     
+    
+    
+    
+        
+ 
+  
         
