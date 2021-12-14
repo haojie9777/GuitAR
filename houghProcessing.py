@@ -52,13 +52,13 @@ def drawStrings(lines,frame):
         pt1 = (int(x0 + 0.5*(-b) ), int(y0 + 0.5*(a)) )
         pt2 = (int(x0 - 700*(-b)), int(y0 - 700*(a)))
         cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
-        print(f"pt1:{pt1} pt2:{pt2}")
+        #print(f"pt1:{pt1} pt2:{pt2}")
     return frame
 
 '''
-Return line segment with coordinates from lines defined in theta and rho
+Return points of line segment from string lines defined in theta and rho
 '''
-def getLineSegment(lines):
+def getStringLinePoints(lines):
     result = []
     if lines is None:
         return

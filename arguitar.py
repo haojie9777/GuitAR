@@ -2,6 +2,7 @@ import cv2
 import time
 import filters
 import houghProcessing
+import guitar
 from managers import WindowManager, CaptureManager
 
 class ARGuitar(object):
@@ -16,49 +17,34 @@ class ARGuitar(object):
     def run(self):
         """Run the main loop."""
         self._windowManager.createWindow()
+        
+        """Holds information about the guitar"""
+        currentGuitar = guitar.Guitar()
+        
         while self._windowManager.isWindowCreated:
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
             
         
             if frame is not None:
-                #do image processing
-             
-                
-                #halfFrame = frame[ frame.shape[0]//3 : frame.shape[0]]
-                
-                # 1.blur/averaging filter
+                """Prepare the frame for line detection"""
                 gaussianFiltered = filters.applyGaussianBlur(frame)
-         
-                
-                # 2.Canny edge detection
                 edges = filters.autoCannyEdge(gaussianFiltered)
-            
-                
-                # 3.Dilation to enlarge edges
-                #dilated = filters.applyDilation(thresh)
-                #eroded = filters.applyErosion(gaussianFiltered)
-                
-           
-                #3.5 sobel filters to accentuate vertical/horizontal edges
-                #verticalEdges = filters.applySobelX(edges)
-                # horizontalEdges = filters.applySobelY(edges)
-                
     
-                # 4.Get string lines
+                """Get the string lines """
                 rawStringLines = houghProcessing.getHoughLines(edges)
             
-                # 5. process lines by clustering
+                """Process string lines"""
                 processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
-                stringLineSegments = houghProcessing.getLineSegment(processedStringLines)
-                print(stringLineSegments)
-          
-                # 6. draw to see
+                stringLinePoints = houghProcessing.getStringLinePoints(processedStringLines)
                 
-               
-              
-     
-               #add final image to display
+                """Update the guitar object"""
+                currentGuitar.setStringPoints(stringLinePoints)
+                #print(currentGuitar.getStringPoints())
+                frame = houghProcessing.drawStrings(processedStringLines,frame)
+                
+            
+                """Update video frame that the user will see"""
                 self._captureManager.frame = frame
                 pass
 
@@ -85,3 +71,13 @@ class ARGuitar(object):
 
 if __name__=="__main__":
     ARGuitar().run()
+    
+    
+'''  Unused stuff
+         3.Dilation to enlarge edges
+                #dilated = filters.applyDilation(thresh)
+                #eroded = filters.applyErosion(gaussianFiltered)
+                #3.5 sobel filters to accentuate vertical/horizontal edges
+                #verticalEdges = filters.applySobelX(edges)
+                # horizontalEdges = filters.applySobelY(edges)
+'''
