@@ -23,11 +23,16 @@ class Guitar():
     def getFretPoints(self):
         return self.fretPoints
     
-    def setStringPoint(self, stringNumber, points):
+    def setStringPoints(self, stringNumber, points):
         self.stringPoints[stringNumber] = points
-        
+    
+    
     def setFretPoints(self, fretNumber, points):
         self.fretPoints[fretNumber] = points
         
+    
+
+        
+
     
         

@@ -43,15 +43,16 @@ def drawStrings(lines,frame):
         #remove vertical lines and completed horizontal lines
         if theta >= 1.5:
             break
-        print(theta)
     
         a = math.cos(theta)
         b = math.sin(theta)
         x0 = a * rho
         y0 = b * rho
-        pt1 = (int(x0 + 300*(-b)), int(y0 + 300*(a)))
-        pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
+        #remember that the x and y axes are flipped as the frame is mirrored
+        pt1 = (int(x0 + 0.2*(-b)), int(y0 + 0.2*(a)))
+        pt2 = (int(x0 - 500*(-b)), int(y0 - 500*(a)))
         cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
+        print(f"pt1:{pt1} pt2:{pt2}")
     return frame
     
     
@@ -187,8 +188,11 @@ def processStringLinesByKmeans(lines):
         originalLines = originalLines[labels==0]
     else:
         originalLines = originalLines[labels==1]
-        
-    return originalLines
+    
+    #sort by highest rho value first (lowest string first)
+    sortedLines = originalLines[originalLines[:,0].argsort()]
+    
+    return sortedLines
         
  
 

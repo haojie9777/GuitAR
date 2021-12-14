@@ -55,8 +55,9 @@ class ARGuitar(object):
             
           
                 # 6. draw to see
+                #print(processedStringLines)
                 frame = houghProcessing.drawStrings(processedStringLines, frame)
-           
+              
      
                #add final image to display
                 self._captureManager.frame = frame
