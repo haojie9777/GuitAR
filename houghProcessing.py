@@ -49,11 +49,36 @@ def drawStrings(lines,frame):
         x0 = a * rho
         y0 = b * rho
         #remember that the x and y axes are flipped as the frame is mirrored
-        pt1 = (int(x0 + 0.2*(-b)), int(y0 + 0.2*(a)))
-        pt2 = (int(x0 - 500*(-b)), int(y0 - 500*(a)))
+        pt1 = (int(x0 + 0.5*(-b) ), int(y0 + 0.5*(a)) )
+        pt2 = (int(x0 - 700*(-b)), int(y0 - 700*(a)))
         cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
         print(f"pt1:{pt1} pt2:{pt2}")
     return frame
+
+'''
+Return line segment with coordinates from lines defined in theta and rho
+'''
+def getLineSegment(lines):
+    result = []
+    if lines is None:
+        return
+    for i in range(0, len(lines)):
+        rho = lines[i][0]
+        theta = lines[i][1]
+    #remove vertical lines and completed horizontal lines
+        if theta >= 1.5:
+            break
+        a = math.cos(theta)
+        b = math.sin(theta)
+        x0 = a * rho
+        y0 = b * rho
+        #remember that the x and y axes are flipped as the frame is mirrored
+        pt1 = (int(x0 + 0.5*(-b) ), int(y0 + 0.5*(a)) )
+        pt2 = (int(x0 - 700*(-b)), int(y0 - 700*(a)))
+        result.append([pt1,pt2])
+    return result
+    
+    
     
     
 def returnSlopeOfLine(line):
