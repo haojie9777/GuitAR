@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 import math
 
-
+"""
+Handles all line processing related utilities 
+"""
 
 
 def removeDuplicateLines(lines):
@@ -65,7 +67,7 @@ def getStringLinePoints(lines):
     for i in range(0, len(lines)):
         rho = lines[i][0]
         theta = lines[i][1]
-    #remove vertical lines and completed horizontal lines
+    #remove vertical lines and horizontal lines
         if theta >= 1.5:
             break
         a = math.cos(theta)
@@ -218,6 +220,64 @@ def processStringLinesByKmeans(lines):
     sortedLines = originalLines[originalLines[:,0].argsort()]
     
     return sortedLines
+
+
+"""
+Get the intensity profile of a line
+line: [(start_x,start_y), (end_x,end_y)]
+"""
+def bresenham_march(img, line):
+    x1 = line[0][0]
+    y1 = line[0][1]
+    x2 = line[1][0]
+    y2 = line[1][1]
+    #tests if any coordinate is outside the image
+    if ( 
+        x1 >= img.shape[0]
+        or x2 >= img.shape[0]
+        or y1 >= img.shape[1]
+        or y2 >= img.shape[1]
+    ): #tests if line is in image, necessary because some part of the line must be inside, it respects the case that the two points are outside
+        if not cv2.clipLine((0, 0, *img.shape[:2]), line[0], line[1]):
+            print("not in region")
+            return
+
+    steep = math.fabs(y2 - y1) > math.fabs(x2 - x1)
+    if steep:
+        x1, y1 = y1, x1
+        x2, y2 = y2, x2
+
+    # takes left to right
+    also_steep = x1 > x2
+    if also_steep:
+        x1, x2 = x2, x1
+        y1, y2 = y2, y1
+
+    dx = x2 - x1
+    dy = math.fabs(y2 - y1)
+    error = 0.0
+    delta_error = 0.0
+    # Default if dx is zero
+    if dx != 0:
+        delta_error = math.fabs(dy / dx)
+
+    y_step = 1 if y1 < y2 else -1
+
+    y = y1
+    ret = []
+    for x in range(x1, x2):
+        p = (y, x) if steep else (x, y)
+        if p[0] < img.shape[0] and p[1] < img.shape[1]:
+            ret.append((p, img[p]))
+        error += delta_error
+        if error >= 0.5:
+            y += y_step
+            error -= 1
+    if also_steep:  # because we took the left to right instead
+        ret.reverse()
+    return ret
+    
+    
         
  
 

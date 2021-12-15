@@ -20,10 +20,14 @@ class ARGuitar(object):
         
         """Holds information about the guitar"""
         currentGuitar = guitar.Guitar()
+        count = 0
+    
         
         while self._windowManager.isWindowCreated:
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
+            greyFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            greyFrame = filters.applyGaussianBlur(greyFrame)
             
         
             if frame is not None:
@@ -31,18 +35,28 @@ class ARGuitar(object):
                 gaussianFiltered = filters.applyGaussianBlur(frame)
                 edges = filters.autoCannyEdge(gaussianFiltered)
     
-                """Get the string lines """
+                """Get the string lines"""
                 rawStringLines = houghProcessing.getHoughLines(edges)
             
                 """Process string lines"""
                 processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
                 stringLinePoints = houghProcessing.getStringLinePoints(processedStringLines)
+                if stringLinePoints is not None:
+                    print(stringLinePoints)
+                    for lines in stringLinePoints:
+                        if count == 0:
+                            lineIntensity = houghProcessing.bresenham_march(greyFrame,lines)
+                            #for intensity in lineIntensity:
+                                #print(intensity[1], intensity[0])
+                            #count+= 1
+                    
                 
                 """Update the guitar object"""
                 currentGuitar.setStringPoints(stringLinePoints)
-                #print(currentGuitar.getStringPoints())
-                frame = houghProcessing.drawStrings(processedStringLines,frame)
+                # frame  = currentGuitar.drawString(frame)
+                frame = currentGuitar.drawString(frame)
                 
+
             
                 """Update video frame that the user will see"""
                 self._captureManager.frame = frame
