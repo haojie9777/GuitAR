@@ -29,6 +29,7 @@ class ARGuitar(object):
             frame = self._captureManager.frame
             greyFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             greyFrame = filters.applyGaussianBlur(greyFrame)
+            
             greyFrame = filters.applyErosion(greyFrame)
            
             
