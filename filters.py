@@ -37,7 +37,7 @@ def applyDilation(frame):
     return cv2.dilate(frame,kernel, iterations=1)
 
 def applyErosion(frame):
-    kernel = numpy.ones((7,7),numpy.uint8)
+    kernel = numpy.ones((3,3),numpy.uint8)
     return cv2.erode(frame, kernel, iterations=1)
 
 def applyOpening(frame):

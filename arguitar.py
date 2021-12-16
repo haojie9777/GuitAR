@@ -21,7 +21,7 @@ class ARGuitar(object):
         """Holds information about the guitar"""
         currentGuitar = guitar.Guitar()
         
-        frameNumber = 0 #count every 10 frames 0-9
+        frameNumber = 0 #count every 2 frames
     
         
         while self._windowManager.isWindowCreated:
@@ -29,39 +29,46 @@ class ARGuitar(object):
             frame = self._captureManager.frame
             greyFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             greyFrame = filters.applyGaussianBlur(greyFrame)
+            greyFrame = filters.applyErosion(greyFrame)
+           
             
         
             if frame is not None:
-                if frameNumber == 0: #only update new strings every 3 frames
-                    """Prepare the frame for line detection"""
+                if frameNumber == 0: #== 0: #only update new strings' position every 2 frames
+                    """Extract edges from frame for line detection"""
                     gaussianFiltered = filters.applyGaussianBlur(frame)
                     edges = filters.autoCannyEdge(gaussianFiltered)
         
                     """Get the string lines"""
                     rawStringLines = houghProcessing.getHoughLines(edges)
                 
-                    """Process string lines"""
+                    """Process string lines and get start and end point of line segments of strings"""
                     processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
                     stringLinePoints = houghProcessing.getStringLinePoints(processedStringLines)
-                    # if stringLinePoints is not None:
-                    #     for lines in stringLinePoints:
-                    #         if count == 0:
-                    #             lineIntensity = houghProcessing .bresenham_march(greyFrame,lines)
-                    #             #for intensity in lineIntensity:
-                    #               #print(intensity[1], intensity[0])    
-                
+                  
                     """Update the guitar object with new string coordinates if fully detected on this frame""" 
                     if stringLinePoints and len(stringLinePoints) == 6: #possibly detected all strings successfully   
                         currentGuitar.setStringPoints(stringLinePoints)
                       
-                    
+                        localMaxima1 = houghProcessing.getLocalMaximaOfLine(frame,stringLinePoints[0])
+                        for maxima in localMaxima1:
+                            cv2.circle(frame,maxima[1],5,(0,0,255),2)
+                        localMaxima3 = houghProcessing.getLocalMaximaOfLine(frame,stringLinePoints[2])
+                        for maxima in localMaxima3:
+                            cv2.circle(frame,maxima[1],5,(0,0,255),2)
+                        localMaxima6 = houghProcessing.getLocalMaximaOfLine(frame,stringLinePoints[5])
+                        for maxima in localMaxima6:
+                            cv2.circle(frame,maxima[1],5,(0,0,255),2)
+                            
+             
+                      
 
                 """Update video frame that the user will see"""
-                frame = currentGuitar.drawString(frame)
-                self._captureManager.frame = frame
-                frameNumber += 1
-                if frameNumber == 3:
-                    frameNumber = 0
+                currentGuitar.drawString(frame)
+                self._captureManager.frame = greyFrame
+                # frameNumber += 1
+                # if frameNumber == 2:
+                #     frameNumber = 0
                 pass
 
             self._captureManager.exitFrame()

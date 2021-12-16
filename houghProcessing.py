@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import filters
 
 """
 Handles all line processing related utilities 
@@ -80,7 +81,10 @@ def getStringLinePoints(lines):
         pt2 = (int(x0 - 700*(-b)), int(y0 - 700*(a)))
         
         #want to tranpose the line segment to around 5th fret height, thus use line equation to find new set of starting points
-        gradient = float( (pt2[1] - pt1[1]) / (pt2[0] - pt1[0]))
+        x2_x1 = (pt2[0] - pt1[0])
+        if x2_x1 == 0: #catch divide by 0 error in gradient calculation
+            break
+        gradient = float( (pt2[1] - pt1[1]) / x2_x1)
         new_x_pt1 = pt1[0] + 80 #shift the new x coordinate by 80 pixels
         new_y_pt1 = gradient*(new_x_pt1) - gradient*pt1[0] + pt1[1]
         
@@ -273,7 +277,7 @@ def bresenham_march(img, line):
 
     y = y1
     ret = []
-    for x in range(x1, x2):
+    for x in range(x1, x2): #steps of 3 x pixels
         p = (y, x) if steep else (x, y)
         if p[0] < img.shape[0] and p[1] < img.shape[1] and p[1] > 0:
         
@@ -285,6 +289,58 @@ def bresenham_march(img, line):
     if also_steep:  # because we took the left to right instead
         ret.reverse()
     return ret
+
+"""
+Return points of estimated local maxima of the line in the frame
+
+linePoints: list of start and end point tuples of the line segment
+"""
+def getLocalMaximaOfLine(frame, linePoints):
+    result = []
+    if linePoints is None:
+        return
+    
+    greyFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    greyFrame = filters.applyGaussianBlur(greyFrame)
+
+    #stores the highest pixel intensity locally
+    currentMaxIntensity = 0
+    currentMaxPoint = None
+   
+    lineIntensity = bresenham_march(greyFrame, linePoints)
+    for point in lineIntensity:
+        if point[1] > 100: #100 is threshold to be considered high intensity pixel
+            if point[1] > currentMaxIntensity: #update new local maxima
+                currentMaxIntensity = point[1]
+                currentMaxPoint = point[0]
+        else:
+            if currentMaxPoint:
+                result.append((currentMaxIntensity,currentMaxPoint))
+                currentMaxIntensity = 0
+                currentMaxPoint = None
+
+    return result
+
+        
+        
+            
+
+                
+                
+                
+            
+            
+            
+            
+        
+    
+    
+    
+    
+    
+
+
+
     
     
         
