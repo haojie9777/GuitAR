@@ -16,7 +16,7 @@ class Guitar():
     def __init__(self):
         self.stringPoints = defaultdict(lambda: None)
         self.fretPoints = defaultdict(lambda: None)
-        
+
         #indicate whether inital full string detection is carried out or not
         self.initialStringsDetected = False 
         
@@ -31,13 +31,13 @@ class Guitar():
             return
         if len(points) == 6: #Successfully detect all 6 lines in this frame
             for i in range(6):
+                #first line is string 1 (top string)
                 self.stringPoints[i] = points[i]
-            if not self.initialStringsDetected:
-                self.initialStringsDetected = True
-            return
+            self.initialStringsDetected = True
+        
+        return
         # else: #some strings undetected, need to use detected ones from previous frames
-        #     for point in points:
-                
+      
                 
             
             
@@ -55,9 +55,27 @@ class Guitar():
                 #draw line on string
                 cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
                 
-                #label string number
-                stringNumber = str(i + 1)+ ""
-                frame = cv2.putText(frame,stringNumber, pt1, \
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, 
-                 (0,0,255), 2, cv2.LINE_AA, False)
+                # #label string number
+                # stringNumber = str(i + 1)+ ""
+                # frame = cv2.putText(frame,stringNumber, pt1, \
+                #     cv2.FONT_HERSHEY_SIMPLEX, 1, 
+                #  (0,0,255), 2, cv2.LINE_AA, False)
+        return frame
+    
+    def drawStringGivenPoints(self,frame,points):
+        if points is None:
+            return frame
+        print(points)
+        for i in range(len(points)):
+            pt1 = points[i][0]
+            pt2 = points[i][1]
+            
+            #draw line on string
+            cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
+            
+            # #label string number
+            # stringNumber = str(i + 1)+ ""
+            # frame = cv2.putText(frame,stringNumber, pt1, \
+            #     cv2.FONT_HERSHEY_SIMPLEX, 1, 
+            #     (0,0,255), 2, cv2.LINE_AA, False)
         return frame

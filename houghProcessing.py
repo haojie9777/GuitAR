@@ -50,7 +50,7 @@ def drawStrings(lines,frame):
         b = math.sin(theta)
         x0 = a * rho
         y0 = b * rho
-        #remember that the x and y axes are flipped as the frame is mirrored
+     
         pt1 = (int(x0 + 0.5*(-b) ), int(y0 + 0.5*(a)) )
         pt2 = (int(x0 - 700*(-b)), int(y0 - 700*(a)))
         cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
@@ -74,10 +74,19 @@ def getStringLinePoints(lines):
         b = math.sin(theta)
         x0 = a * rho
         y0 = b * rho
-        #remember that the x and y axes are flipped as the frame is mirrored
-        pt1 = (int(x0 + 0.5*(-b) ), int(y0 + 0.5*(a)) )
+      
+        #initial set of points that are too long
+        pt1 = (int(x0 + 0.5*(-b) ), int(y0 + 0.5*(a)))
         pt2 = (int(x0 - 700*(-b)), int(y0 - 700*(a)))
-        result.append([pt1,pt2])
+        
+        #want to tranpose the line segment to around 5th fret height, thus use line equation to find new set of starting points
+        gradient = float( (pt2[1] - pt1[1]) / (pt2[0] - pt1[0]))
+        new_x_pt1 = pt1[0] + 80 #shift the new x coordinate by 80 pixels
+        new_y_pt1 = gradient*(new_x_pt1) - gradient*pt1[0] + pt1[1]
+        
+        new_pt1 = (int(new_x_pt1),int(new_y_pt1))
+    
+        result.append([new_pt1,pt2])
     return result
     
     
@@ -218,7 +227,6 @@ def processStringLinesByKmeans(lines):
     
     #sort by highest rho value first (lowest string first)
     sortedLines = originalLines[originalLines[:,0].argsort()]
-    
     return sortedLines
 
 
@@ -267,7 +275,8 @@ def bresenham_march(img, line):
     ret = []
     for x in range(x1, x2):
         p = (y, x) if steep else (x, y)
-        if p[0] < img.shape[0] and p[1] < img.shape[1]:
+        if p[0] < img.shape[0] and p[1] < img.shape[1] and p[1] > 0:
+        
             ret.append((p, img[p]))
         error += delta_error
         if error >= 0.5:
