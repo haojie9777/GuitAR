@@ -31,11 +31,10 @@ class ARGuitar(object):
             if frame is not None:
                 
                 #restrict the area to search for guitar strings, to avoid curve string interference from guitar neck
-                halfFrame = frame[:,0:440]
+                roiFrame = frame[:,0:440]
                
-            
                 """Extract edges from frame for line detection"""
-                gaussianFiltered = filters.applyGaussianBlur(frame)
+                gaussianFiltered = filters.applyGaussianBlur(roiFrame)
                 edges = filters.autoCannyEdge(gaussianFiltered)
     
                 """Get the string lines"""
@@ -56,7 +55,7 @@ class ARGuitar(object):
                 """Update video frame that the user will see"""
                 # currentGuitar.drawString(frame)
                 currentGuitar.drawStringGivenPoints(frame, stringLinePoints)
-                self._captureManager.frame = halfFrame
+                self._captureManager.frame = frame
         
 
             self._captureManager.exitFrame()
