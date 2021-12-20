@@ -20,19 +20,17 @@ def removeDuplicateLines(lines):
                 return strong_lines
             if n1 == 0:
                 strong_lines[n2] = lines[n1]
-                n2 = n2 + 1
+                n2 += 1
             else:
                 if rho < 0:
                     rho*=-1
                     theta-=np.pi
-                closeness_rho = np.isclose(rho,strong_lines[0:n2,0,0],atol = 10)
+                closeness_rho = np.isclose(rho,strong_lines[0:n2,0,0],atol = 11)
                 closeness_theta = np.isclose(theta,strong_lines[0:n2,0,1],atol = np.pi/36)
                 closeness = np.all([closeness_rho,closeness_theta],axis=0)
                 if not any(closeness) and n2 < 7:
                         strong_lines[n2] = lines[n1]
-                        n2 = n2 + 1
-                        
-    #maybe remove line that has a very different theta than the rest 
+                        n2 += 1
     return strong_lines
 
 
@@ -131,7 +129,7 @@ def applyHoughLines(edges,frame):
 def getHoughLines(edges): 
     lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 150)
     
-    #remove lines similar to one another
+    #remove duplicate lines 
     lines = removeDuplicateLines(lines)
     return lines
 
@@ -193,36 +191,32 @@ def removeVerticalLines(lines):
 Remove unwanted lines detected, by using 2-means clustering
 lines belonging in the largest cluster are assumed to be detected strings,
 and will be returned
+sample of rho and theta of all 6 strings detected
+[[364.           1.30899692]
+ [389.           1.30899692]
+ [410.           1.30899692]
+ [427.           1.30899692]
+ [442.           1.30899692]
+ [470.           1.30899692]]
 '''
 def processStringLinesByKmeans(lines):
     if lines is None:
         return
-    
-
     #saved as we need the rho at the end
     originalLines = lines
-    
     #remove rho from line array as we don't need it for cluster
     #thetaArray is nxmxj, n is number of lines and n is column 
     thetaArray = np.delete(lines,[0],2)
-
-    #8x1
     thetaArray = np.reshape(thetaArray,(7,1))
     thetaArray = np.float32(thetaArray)
     
     # Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
     #criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)\
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
-
-    # Set flags 
     flags = cv2.KMEANS_RANDOM_CENTERS
-
-    # Apply KMeans
     compactness,labels,centers = cv2.kmeans(thetaArray,2,None,criteria,10,flags)
     a = thetaArray[labels==0]
     b = thetaArray[labels==1]
-    
-   
     #Get majority cluster
     if np.count_nonzero(a) > np.count_nonzero(b):
         originalLines = originalLines[labels==0]
@@ -233,6 +227,23 @@ def processStringLinesByKmeans(lines):
     sortedLines = originalLines[originalLines[:,0].argsort()]
     return sortedLines
 
+"""
+convert lines w rho and theta from np.array to list of tuples of (rho, theta)
+only keep lines with 1.10 < theta <= 1.5,
+to reduce abnormal lines
+"""
+def convertNpToListForStrings(lines):
+    result = []
+    if lines is None:
+        return result
+    for rho,theta in lines:
+        if 1.10 < theta <= 1.5: #ensure line is in normal range of guitar usage
+            result.append((rho, theta))
+    return result
+        
+            
+
+    
 
 """
 Get the intensity profile of a line
@@ -320,6 +331,38 @@ def getLocalMaximaOfLine(frame, linePoints):
                 currentMaxPoint = None
 
     return result
+
+"""
+Generates a set of candidate fret lines between the 1st and 6th strings.
+string1Pts =  [(x1,y1), (x2,y2)]
+"""
+def generatePossibleFretLines(string1Pts, string6Pts):
+    result = []
+     
+    x2_x1 = (string1Pts[1][0] - string1Pts[0][0])
+    if x2_x1 == 0: #else divide by 0 when calculating gradient
+        return result
+    #calculate gradient of string 1 -> assuming string 1 is accurate
+    gradientOfString1 = float( (string1Pts[1][1] - string1Pts[0])/ x2_x1)
+    
+    gradientOfCandidateLine = float(-1/ gradientOfString1)
+    
+    candidatePt1 = string1Pts[0]
+    return
+    
+   
+  
+    
+    
+    
+    
+     
+     
+     
+     
+     
+     
+     
 
         
         

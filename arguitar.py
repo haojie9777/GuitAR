@@ -21,55 +21,43 @@ class ARGuitar(object):
         """Holds information about the guitar"""
         currentGuitar = guitar.Guitar()
         
-        frameNumber = 0 #count every 2 frames
-    
+
         
         while self._windowManager.isWindowCreated:
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
-            greyFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            greyFrame = filters.applyGaussianBlur(greyFrame)
-            greyFrame = filters.applyErosion(greyFrame)
-           
             
-        
+            
             if frame is not None:
-                if frameNumber == 0: #== 0: #only update new strings' position every 2 frames
-                    """Extract edges from frame for line detection"""
-                    gaussianFiltered = filters.applyGaussianBlur(frame)
-                    edges = filters.autoCannyEdge(gaussianFiltered)
-        
-                    """Get the string lines"""
-                    rawStringLines = houghProcessing.getHoughLines(edges)
                 
-                    """Process string lines and get start and end point of line segments of strings"""
-                    processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
-                    stringLinePoints = houghProcessing.getStringLinePoints(processedStringLines)
-                  
-                    """Update the guitar object with new string coordinates if fully detected on this frame""" 
-                    if stringLinePoints and len(stringLinePoints) == 6: #possibly detected all strings successfully   
-                        currentGuitar.setStringPoints(stringLinePoints)
-                      
-                        localMaxima1 = houghProcessing.getLocalMaximaOfLine(frame,stringLinePoints[0])
-                        for maxima in localMaxima1:
-                            cv2.circle(frame,maxima[1],5,(0,0,255),2)
-                        localMaxima3 = houghProcessing.getLocalMaximaOfLine(frame,stringLinePoints[2])
-                        for maxima in localMaxima3:
-                            cv2.circle(frame,maxima[1],5,(0,0,255),2)
-                        localMaxima6 = houghProcessing.getLocalMaximaOfLine(frame,stringLinePoints[5])
-                        for maxima in localMaxima6:
-                            cv2.circle(frame,maxima[1],5,(0,0,255),2)
-                            
-             
-                      
+                #restrict the area to search for guitar strings, to avoid curve string interference from guitar neck
+                halfFrame = frame[:,0:440]
+               
+            
+                """Extract edges from frame for line detection"""
+                gaussianFiltered = filters.applyGaussianBlur(frame)
+                edges = filters.autoCannyEdge(gaussianFiltered)
+    
+                """Get the string lines"""
+                rawStringLines = houghProcessing.getHoughLines(edges)
+            
+                """Process string lines and get start and end point of line segments of strings"""
+                processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
+                #convert from np array to [(rho,theta), (rho,theta)]
+                processedStringLines = houghProcessing.convertNpToListForStrings(processedStringLines)
+        
+                stringLinePoints = houghProcessing.getStringLinePoints(processedStringLines)
+                
+                """Update the guitar object with new string coordinates if fully detected on this frame""" 
+                if stringLinePoints and len(stringLinePoints) == 6: #possibly detected all strings successfully   
+                    currentGuitar.setStringPoints(stringLinePoints)
+                    
 
                 """Update video frame that the user will see"""
-                currentGuitar.drawString(frame)
-                self._captureManager.frame = greyFrame
-                # frameNumber += 1
-                # if frameNumber == 2:
-                #     frameNumber = 0
-                pass
+                # currentGuitar.drawString(frame)
+                currentGuitar.drawStringGivenPoints(frame, stringLinePoints)
+                self._captureManager.frame = halfFrame
+        
 
             self._captureManager.exitFrame()
             self._windowManager.processEvents()

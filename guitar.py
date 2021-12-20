@@ -65,7 +65,6 @@ class Guitar():
     def drawStringGivenPoints(self,frame,points):
         if points is None:
             return frame
-        print(points)
         for i in range(len(points)):
             pt1 = points[i][0]
             pt2 = points[i][1]
@@ -79,3 +78,6 @@ class Guitar():
             #     cv2.FONT_HERSHEY_SIMPLEX, 1, 
             #     (0,0,255), 2, cv2.LINE_AA, False)
         return frame
+    
+    
+   
