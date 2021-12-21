@@ -46,8 +46,8 @@ class ARGuitar(object):
                 #(rho, theta) of strings
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(processedStringLines)
     
-                """Update the guitar object with new string points if fully detected on this frame""" 
-                if rhoThetaStrings and len(rhoThetaStrings) == 6:  
+                """Update the guitar object with new string points""" 
+                if rhoThetaStrings:  
                     currentGuitar.setStringPoints(rhoThetaStrings)
                     
 

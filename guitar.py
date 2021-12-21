@@ -23,7 +23,7 @@ class Guitar():
         self.fretPoints = defaultdict(lambda: None)
 
         #indicate whether inital full string detection is carried out or not
-        self.initialStringsDetected = False 
+        self.initialStringsFullyDetected = False 
         
     def getStringCoordinates(self):
         return self.stringCoordinates
@@ -35,7 +35,7 @@ class Guitar():
             for i in range(6):
                 #first line is string 1 (top string)
                 self.stringCoordinates[i] = coordinates[i]
-            self.initialStringsDetected = True
+            self.initialStringsFullyDetected = True
         
         return
         # else: #some strings undetected, need to use detected ones from previous frames
@@ -45,9 +45,7 @@ class Guitar():
         return self.stringPoints
     
     """ 
-    updates the (rho,theta) points for every string
-    uses the rho distance between adjacent string 15-28
-    to determine if an adjacent string is not detected in current frame, and use prev frame value to fill in
+    updates the (rho,theta) points for every string if it is close to prev frame's value
     """
     def setStringPoints(self, points):
         if points is None:
@@ -55,15 +53,22 @@ class Guitar():
         if len(points) == 6: #Successfully detect all 6 lines in this frame
             for i in range(6):
                 self.stringPoints[i] = points[i]
-            self.initialStringsDetected = True
+            self.initialStringsFullyDetected = True
             #save coordinates of strings for this frame
             coordinates = houghProcessing.getStringLineCoordinates(points)
             self.setStringCoordinates(coordinates)
             return
-        else: #some string
-            print("one iteration")
-            for rho, theta in points:
-                print(rho,theta)
+        else: #some string not detected, need to check if
+            #current frame values close to prev frame
+            if self.initialStringsFullyDetected:
+                for i, (rho, theta) in enumerate(points):
+                    if abs(rho - self.stringPoints[i][0]) < 2: #this string's value close to pre frame's one, likely detected correctly
+                        #update this string's rho and theta
+                        self.stringPoints[i] = (rho,theta)
+                
+                #store as coordinates
+                coordinates = houghProcessing.getStringLineCoordinates(self.stringPoints)
+                self.setStringCoordinates(coordinates)
             return
                 
             
