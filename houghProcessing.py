@@ -57,9 +57,9 @@ def drawStrings(lines,frame):
     return frame
 
 '''
-Return points of line segment from string lines defined in theta and rho
+Return coordinates of line segment from string lines defined in theta and rho
 '''
-def getStringLinePoints(lines):
+def getStringLineCoordinates(lines):
     result = []
     if lines is None:
         return
@@ -200,6 +200,7 @@ sample of rho and theta of all 6 strings detected
  [470.           1.30899692]]
 '''
 def processStringLinesByKmeans(lines):
+  
     if lines is None:
         return
     #saved as we need the rho at the end

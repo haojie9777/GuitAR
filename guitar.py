@@ -5,8 +5,11 @@ from collections import defaultdict
 """
 class to represent a guitar object and information about its string and frets.
 
-stringPoints: dictionary containing start and end coordinates of 6 strings
+stringCoordinates: dictionary containing start and end coordinates of 6 strings
 e.g: stringPoints[0] = [(1,2), (3,4)]
+
+stringPoints: dictionary containing (rho and theta) tuple of 6 strings
+e.g: stringLines[0] = (rho, theta)
 
 fretPoints: list containing tuples of start and end point of line denoting a fret
 e.g fretPoints[1] = [(1,2),(3,4)]
@@ -14,17 +17,31 @@ e.g fretPoints[1] = [(1,2),(3,4)]
 class Guitar():
     
     def __init__(self):
+        self.stringCoordinates = defaultdict(lambda: None)
         self.stringPoints = defaultdict(lambda: None)
         self.fretPoints = defaultdict(lambda: None)
 
         #indicate whether inital full string detection is carried out or not
         self.initialStringsDetected = False 
         
+    def getStringCoordinates(self):
+        return self.stringCoordinates
+    
+    def setStringCoordinates(self, coordinates):
+        if coordinates is None:
+            return
+        if len(coordinates) == 6: #Successfully detect all 6 lines in this frame
+            for i in range(6):
+                #first line is string 1 (top string)
+                self.stringCoordinates[i] = coordinates[i]
+            self.initialStringsDetected = True
+        
+        return
+        # else: #some strings undetected, need to use detected ones from previous frames
+      
+    
     def getStringPoints(self):
         return self.stringPoints
-    
-    def getFretPoints(self):
-        return self.fretPoints
     
     def setStringPoints(self, points):
         if points is None:
@@ -34,23 +51,21 @@ class Guitar():
                 #first line is string 1 (top string)
                 self.stringPoints[i] = points[i]
             self.initialStringsDetected = True
-        
         return
-        # else: #some strings undetected, need to use detected ones from previous frames
-      
-                
-            
-            
-            
+    
+    
+    def getFretPoints(self):
+        return self.fretPoints
+       
     def setFretPoints(self, fretNumber, points):
         self.fretPoints[fretNumber] = points
         return
     
     def drawString(self,frame):
         for i in range(6):
-            if self.stringPoints[i] is not None:
-                pt1 = self.stringPoints[i][0]
-                pt2 = self.stringPoints[i][1]
+            if self.stringCoordinates[i] is not None:
+                pt1 = self.stringCoordinates[i][0]
+                pt2 = self.stringCoordinates[i][1]
                 
                 #draw line on string
                 cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
@@ -62,7 +77,7 @@ class Guitar():
                 #  (0,0,255), 2, cv2.LINE_AA, False)
         return frame
     
-    def drawStringGivenPoints(self,frame,points):
+    def drawStringGivenCoordinates(self,frame,points):
         if points is None:
             return frame
         for i in range(len(points)):

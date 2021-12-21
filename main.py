@@ -30,10 +30,11 @@ class ARGuitar(object):
             
             if frame is not None:
                 
+          
+
+                """Extract edges from frame for line detection"""
                 #restrict the area to search for guitar strings, to avoid curve string interference from guitar neck
                 roiFrame = frame[:,0:440]
-               
-                """Extract edges from frame for line detection"""
                 gaussianFiltered = filters.applyGaussianBlur(roiFrame)
                 edges = filters.autoCannyEdge(gaussianFiltered)
     
@@ -42,19 +43,21 @@ class ARGuitar(object):
             
                 """Process string lines and get start and end point of line segments of strings"""
                 processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
-                #convert from np array to [(rho,theta), (rho,theta)]
-                processedStringLines = houghProcessing.convertNpToListForStrings(processedStringLines)
-        
-                stringLinePoints = houghProcessing.getStringLinePoints(processedStringLines)
+             
+                #(rho, theta) of strings
+                rhoThetaStrings = houghProcessing.convertNpToListForStrings(processedStringLines)
+                #(x1,y1) (x2,y2) of strings
+                stringLineCoordinates = houghProcessing.getStringLineCoordinates(rhoThetaStrings)
                 
                 """Update the guitar object with new string coordinates if fully detected on this frame""" 
-                if stringLinePoints and len(stringLinePoints) == 6: #possibly detected all strings successfully   
-                    currentGuitar.setStringPoints(stringLinePoints)
+                if stringLineCoordinates and len(stringLineCoordinates) == 6: #possibly detected all strings successfully   
+                    currentGuitar.setStringCoordinates(stringLineCoordinates)
+                    currentGuitar.setStringPoints(rhoThetaStrings)
                     
 
                 """Update video frame that the user will see"""
-                # currentGuitar.drawString(frame)
-                currentGuitar.drawStringGivenPoints(frame, stringLinePoints)
+                currentGuitar.drawString(frame)
+                #currentGuitar.drawStringGivenCoordinates(frame, stringLineCoordinates)
                 self._captureManager.frame = frame
         
 
