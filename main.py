@@ -41,23 +41,18 @@ class ARGuitar(object):
                 """Get the string lines"""
                 rawStringLines = houghProcessing.getHoughLines(edges)
             
-                """Process string lines and get start and end point of line segments of strings"""
+                """Process string lines and get (rho,theta) points of strings"""
                 processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
-             
                 #(rho, theta) of strings
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(processedStringLines)
-                #(x1,y1) (x2,y2) of strings
-                stringLineCoordinates = houghProcessing.getStringLineCoordinates(rhoThetaStrings)
-                
-                """Update the guitar object with new string coordinates if fully detected on this frame""" 
-                if stringLineCoordinates and len(stringLineCoordinates) == 6: #possibly detected all strings successfully   
-                    currentGuitar.setStringCoordinates(stringLineCoordinates)
+    
+                """Update the guitar object with new string points if fully detected on this frame""" 
+                if rhoThetaStrings and len(rhoThetaStrings) == 6:  
                     currentGuitar.setStringPoints(rhoThetaStrings)
                     
 
                 """Update video frame that the user will see"""
                 currentGuitar.drawString(frame)
-                #currentGuitar.drawStringGivenCoordinates(frame, stringLineCoordinates)
                 self._captureManager.frame = frame
         
 

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import houghProcessing
 from collections import defaultdict
 """
 class to represent a guitar object and information about its string and frets.
@@ -43,15 +44,29 @@ class Guitar():
     def getStringPoints(self):
         return self.stringPoints
     
+    """ 
+    updates the (rho,theta) points for every string
+    uses the rho distance between adjacent string 15-28
+    to determine if an adjacent string is not detected in current frame, and use prev frame value to fill in
+    """
     def setStringPoints(self, points):
         if points is None:
             return
         if len(points) == 6: #Successfully detect all 6 lines in this frame
             for i in range(6):
-                #first line is string 1 (top string)
                 self.stringPoints[i] = points[i]
             self.initialStringsDetected = True
-        return
+            #save coordinates of strings for this frame
+            coordinates = houghProcessing.getStringLineCoordinates(points)
+            self.setStringCoordinates(coordinates)
+            return
+        else: #some string
+            print("one iteration")
+            for rho, theta in points:
+                print(rho,theta)
+            return
+                
+            
     
     
     def getFretPoints(self):
