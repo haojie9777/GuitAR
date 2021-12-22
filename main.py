@@ -3,6 +3,7 @@ import time
 import filters
 import houghProcessing
 import guitar
+import numpy as np
 from managers import WindowManager, CaptureManager
 
 class ARGuitar(object):
@@ -53,7 +54,15 @@ class ARGuitar(object):
                 """Update the guitar object with new string points""" 
                 if rhoThetaStrings:  
                     currentGuitar.setStringPoints(rhoThetaStrings)
-                    print(rhoThetaStrings)
+                
+                """Get bounding box of fretboard"""
+                if currentGuitar.getFretboardBoundingBoxPoints():
+                    pts = np.array(currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
+                    pts = pts.reshape((-1,1,2))
+                    cv2.polylines(frame,[pts],True,(0,0,255),2)
+                
+            
+               
                
                 """Update video frame that the user will see"""
                 currentGuitar.drawString(frame)
