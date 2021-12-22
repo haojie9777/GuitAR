@@ -37,9 +37,13 @@ class ARGuitar(object):
                 roiFrame = frame[:,0:440]
                 gaussianFiltered = filters.applyGaussianBlur(roiFrame)
                 edges = filters.autoCannyEdge(gaussianFiltered)
+                
+                # gaussianFiltered = filters.applyGaussianBlur(roiFrame)
+                # edges = filters.autoCannyEdge(gaussianFiltered)
     
                 """Get the string lines"""
                 rawStringLines = houghProcessing.getHoughLines(edges)
+                
             
                 """Process string lines and get (rho,theta) points of strings"""
                 processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
@@ -49,8 +53,8 @@ class ARGuitar(object):
                 """Update the guitar object with new string points""" 
                 if rhoThetaStrings:  
                     currentGuitar.setStringPoints(rhoThetaStrings)
-                    
-
+                    print(rhoThetaStrings)
+               
                 """Update video frame that the user will see"""
                 currentGuitar.drawString(frame)
                 self._captureManager.frame = frame

@@ -50,7 +50,8 @@ class Guitar():
     def setStringPoints(self, points):
         if points is None:
             return
-        if len(points) == 6: #Successfully detect all 6 lines in this frame
+        #Successfully detect all 6 lines in this frame
+        if len(points) == 6: 
             for i in range(6):
                 self.stringPoints[i] = points[i]
             self.initialStringsFullyDetected = True
@@ -58,11 +59,13 @@ class Guitar():
             coordinates = houghProcessing.getStringLineCoordinates(points)
             self.setStringCoordinates(coordinates)
             return
-        else: #some string not detected, need to check if
-            #current frame values close to prev frame
+        #some string not detected, need to check if current frame values close to prev frame
+        else: 
+            #proceed only if all 6 strings detected successfully beforehand
             if self.initialStringsFullyDetected:
                 for i, (rho, theta) in enumerate(points):
-                    if abs(rho - self.stringPoints[i][0]) < 2: #this string's value close to pre frame's one, likely detected correctly
+                     #this string's points close to pre frame's one, likely detected correctly
+                    if abs(rho - self.stringPoints[i][0]) < 2:
                         #update this string's rho and theta
                         self.stringPoints[i] = (rho,theta)
                 
@@ -113,6 +116,19 @@ class Guitar():
             #     cv2.FONT_HERSHEY_SIMPLEX, 1, 
             #     (0,0,255), 2, cv2.LINE_AA, False)
         return frame
+    
+
+    """
+    Get the bounding box containing the first 5 frets of the fretboard, for fret detection
+    """
+    def getFretboardBoundingBox(self):
+        #need to wait for first and sixth strings to be detected properly first
+        if not self.initialStringsFullyDetected:
+            return
+        
+        
+        
+        
     
     
    
