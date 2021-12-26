@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 import filters
+from operator import add
 
 """
 Handles all line processing related utilities 
@@ -138,59 +139,83 @@ def getHoughLines(edges):
             
 def applyHoughLinesP(edges, frame):
     #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
-    #lines = cv2.HoughLinesP(edges, rho=1, theta=numpy.pi / 180
-    #,threshold=50, minLineLength=30, maxLineGap=5)
     
+    # lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
+    # ,threshold=5, minLineLength=30, maxLineGap=3)
     lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    ,threshold=5, minLineLength=30, maxLineGap=3)
-    #print(houghProcessing.returnAngleOfLine(lines))
-    
+    ,threshold=50, minLineLength=30, maxLineGap=3)
+
     # Draw the lines
     if lines is not None:
+        i =0
+        print(lines)
         for i in range(0, len(lines)):
             l = lines[i][0]
-            
-            # #attempt to show only short lines
-            # distance = math.sqrt( (l[2] - l[0])**2 + (l[3]- l[1])**2)
-            # if distance < 200:
-            slope = returnSlopeOfLine(l)
+            slope = returnSlopeOfLine(l) #slope = 100 is infinity
             if slope < 100 and slope >= 1:
+                print(slope)
+                i+=1
                 cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
+    print(i)
     return frame
 
+def drawFrets(frets, frame):
+    if frets is not None:
+        for i in range(0, len(frets)):
+            l = frets[i]
+            cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
+        
+
+"""Used to get fret lines segments"""
 def getHoughLinesP(edges):
     #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
-    lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    ,threshold=5, minLineLength=30, maxLineGap=3)
+    # lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
+    # ,threshold=50, minLineLength=30, maxLineGap=3)
+    lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
+    ,threshold=30, minLineLength=30, maxLineGap=3)
     return lines
-
 
 def processFretLines(lines):
     if lines is None:
         return
     frets = []
     for i in range(0, len(lines)):
-        l = lines[i][0]
-        dx = (l[2]-l[0])
-        if dx == 0:
-            break
-        gradient = (l[3] - l[1])/dx
-        if gradient > 1:
-            frets.append(l)
-    return frets #list of numpy arrays containing 4 points
-
-
-
-def removeVerticalLines(lines):
+        #remove lines with gradient not likely to be a fret
+        slope = returnSlopeOfLine(lines[i][0])
+        if 1 <= slope < 100:
+            frets.append(list(lines[i][0]))
+    
+    #remove similar lines
+    #sort by x coordinate of every line
+    frets.sort(key=lambda x:x[0])
+  
     result = []
-    if lines is None:
-        return result
-    for i in range(len(lines)):
-                if lines[i][0][1] <= 2:
-                    result.append(lines[i][0])
+    i = 0 #current lines
+    j = 1 #additional lines
+    while i < len(frets): 
+        #find all lines that are close
+        x1 = frets[i][0]
+        y1 = frets[i][1]
+        x2 = frets[i][2]
+        y2 = frets[i][3]
+        while  i+j < len(frets) and abs(frets[i][0] - frets[i+j][0]) < 20:
+            x1 += frets[i+j][0]
+            y1 += frets[i+j][1]
+            x2 += frets[i+j][2]
+            y2 += frets[i+j][3]
+            j += 1
+        #find average of lines
+        x1 = int(x1 / j)
+        y1 = int(y1 / j)
+        x2 = int(x2 / j)
+        y2 = int(y2 / j)
+        result.append((x1,y1,x2,y2))
+  
+        i += j
+        j = 1
     return result
 
-            
+      
     
 '''
 Remove unwanted lines detected, by using 2-means clustering
@@ -338,24 +363,7 @@ def getLocalMaximaOfLine(frame, linePoints):
 
     return result
 
-"""
-Generates a set of candidate fret lines between the 1st and 6th strings.
-string1Pts =  [(x1,y1), (x2,y2)]
-"""
-def generatePossibleFretLines(string1Pts, string6Pts):
-    result = []
-     
-    x2_x1 = (string1Pts[1][0] - string1Pts[0][0])
-    if x2_x1 == 0: #else divide by 0 when calculating gradient
-        return result
-    #calculate gradient of string 1 -> assuming string 1 is accurate
-    gradientOfString1 = float( (string1Pts[1][1] - string1Pts[0])/ x2_x1)
-    
-    gradientOfCandidateLine = float(-1/ gradientOfString1)
-    
-    candidatePt1 = string1Pts[0]
-    return
-    
+
    
   
     

@@ -24,6 +24,7 @@ class Guitar():
 
         #indicate whether inital full string detection is carried out or not
         self.initialStringsFullyDetected = False 
+        self.initialFretsFullyDetected = False
         
     def getStringCoordinates(self):
         return self.stringCoordinates

@@ -22,12 +22,9 @@ class ARGuitar(object):
         """Holds information about the guitar"""
         currentGuitar = guitar.Guitar()
         
-
-        
         while self._windowManager.isWindowCreated:
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
-            
             
             if frame is not None:
                 
@@ -51,7 +48,7 @@ class ARGuitar(object):
                 if rhoThetaStrings:  
                     currentGuitar.setStringPoints(rhoThetaStrings)
                 
-                """Draw bounding box on fretboard for fun"""
+                """Draw bounding box on fretboard and use it for a mask"""
                 if currentGuitar.getFretboardBoundingBoxPoints():
                     pts = np.array(currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
                     pts = pts.reshape((-1,1,2))
@@ -64,12 +61,16 @@ class ARGuitar(object):
                     masked = filters.applyThreshold(masked, "manual")
                     masked = filters.applySobelX(masked)
                     
-                    """ Extract vertical fretlines"""
-                    houghProcessing.applyHoughLinesP(masked,frame)
-                    self._captureManager.frame = frame
+                    """ Extract fret lines segments"""
+                    rawFretLines = houghProcessing.getHoughLinesP(masked)
+                    processedFretLines = houghProcessing.processFretLines(rawFretLines)
+                    print(processedFretLines)
+                    houghProcessing.drawFrets(processedFretLines,frame)
+                    
+              
+                    
+                    
                  
-                 
-                
                
                 """Update video frame that the user will see"""
                 currentGuitar.drawString(frame)
