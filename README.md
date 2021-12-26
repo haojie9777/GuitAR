@@ -55,7 +55,6 @@
 ## About The Project
 
 ![prototype](https://user-images.githubusercontent.com/69890658/147402276-915694d0-ac49-4294-ac0a-c80f9140e429.jpg)
-![alt text](https://user-images.githubusercontent.com/69890658/147402276-915694d0-ac49-4294-ac0a-c80f9140e429.jpg)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
