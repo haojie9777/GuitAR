@@ -31,20 +31,16 @@ class ARGuitar(object):
             
             if frame is not None:
                 
-          
-
+                maskFrame = np.zeros(frame.shape[:2], dtype="uint8")
+         
                 """Extract edges from frame for line detection"""
                 #restrict the area to search for guitar strings, to avoid curve string interference from guitar neck
                 roiFrame = frame[:,0:440]
                 gaussianFiltered = filters.applyGaussianBlur(roiFrame)
                 edges = filters.autoCannyEdge(gaussianFiltered)
                 
-                # gaussianFiltered = filters.applyGaussianBlur(roiFrame)
-                # edges = filters.autoCannyEdge(gaussianFiltered)
-    
                 """Get the string lines"""
                 rawStringLines = houghProcessing.getHoughLines(edges)
-                
             
                 """Process string lines and get (rho,theta) points of strings"""
                 processedStringLines = houghProcessing.processStringLinesByKmeans(rawStringLines)
@@ -55,18 +51,44 @@ class ARGuitar(object):
                 if rhoThetaStrings:  
                     currentGuitar.setStringPoints(rhoThetaStrings)
                 
-                """Get bounding box of fretboard"""
+                """Draw bounding box on fretboard for fun"""
                 if currentGuitar.getFretboardBoundingBoxPoints():
                     pts = np.array(currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
                     pts = pts.reshape((-1,1,2))
-                    cv2.polylines(frame,[pts],True,(0,0,255),2)
+                    cv2.polylines(frame,[pts],True,(255,0,0),2, cv2.LINE_AA)
                 
-            
-               
+                    
+                    """create mask on fretboard to perform fret detection"""
+                    cv2.fillConvexPoly(maskFrame,pts,(255,255,255))
+                    masked = cv2.bitwise_and(frame, frame, mask=maskFrame)
+                    masked = filters.applyThreshold(masked, "manual")
+                    masked = filters.applySobelX(masked)
+                    
+                    """ Extract vertical fretlines"""
+                    rawFretLines = houghProcessing.getHoughLines(masked)
+                    print(rawFretLines)
+                    
+                    
+                    
+                
+                    self._captureManager.frame = masked
+                   
+                    # masked = filters.applyGaussianBlur(masked)
+                    # maskedEdges = filters.autoCannyEdge(masked)
+                    
+                    # """ Get candidate fret lines"""
+                    # lines = houghProcessing.getHoughLinesP(maskedEdges)
+                    # lines = houghProcessing.processFretLines(lines)
+                    # if lines is not None:
+                    #     for i in range(0, len(lines)):
+                    #         l = lines[i]
+                    #         cv2.line(frame, (l[0], l[1]), (l[2], l[3]), (0,255,255), 2, cv2.LINE_AA)
+                 
+                
                
                 """Update video frame that the user will see"""
-                currentGuitar.drawString(frame)
-                self._captureManager.frame = frame
+                #currentGuitar.drawString(frame)
+                #self._captureManager.frame = frame
         
 
             self._captureManager.exitFrame()

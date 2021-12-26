@@ -106,24 +106,24 @@ def returnSlopeOfLine(line):
     return slope
 
 def applyHoughLines(edges,frame): 
-    #lines = cv2.HoughLines(edges, 1, 2*numpy.pi / 180, 150)
-    lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 150)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 100)
     # Draw the lines
     
     #remove lines similar to one another
     lines = removeDuplicateLines(lines)
-    
+ 
     if lines is not None:
         for i in range(0, len(lines)):
             rho = lines[i][0][0]
             theta = lines[i][0][1]
+            print(theta)
             a = math.cos(theta)
             b = math.sin(theta)
             x0 = a * rho
             y0 = b * rho
             pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
             pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
-            cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
+            cv2.line(frame, pt1, pt2, (0,255,255), 1, cv2.LINE_AA)
     return frame
    
 def getHoughLines(edges): 
@@ -159,7 +159,7 @@ def applyHoughLinesP(edges, frame):
 def getHoughLinesP(edges):
     #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
     lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    ,threshold=30, minLineLength=30, maxLineGap=3)
+    ,threshold=5, minLineLength=30, maxLineGap=3)
     return lines
 
 
@@ -169,12 +169,15 @@ def processFretLines(lines):
     frets = []
     for i in range(0, len(lines)):
         l = lines[i][0]
-        slope = returnSlopeOfLine(l)
-        if (slope < 100) and (slope >= 1):
-            #remove lines that are not likely to be frets
+        dx = (l[2]-l[0])
+        if dx == 0:
+            break
+        gradient = (l[3] - l[1])/dx
+        if gradient > 1:
             frets.append(l)
-            
     return frets #list of numpy arrays containing 4 points
+
+
 
 def removeVerticalLines(lines):
     result = []

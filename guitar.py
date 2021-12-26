@@ -127,14 +127,20 @@ class Guitar():
             return None
         #define 4 corners of bounding box
         p1 = list(self.stringCoordinates[0][0])
-        #offset to avoid clashing w string lines
-        p1[1] -= 20
+        #offset to make bounding box slightly bigger than fretboard
+        p1[1] -= 15
+        p1[0] -= 80
         p2 = list(self.stringCoordinates[5][0])
-        p2[1] += 20
+        p2[1] += 40
+        p2[0] -= 65
         p3 = list(self.stringCoordinates[5][1])
-        p3[1] += 20
+        p3[0] -= 100
+        p3[1] += 70
         p4 = list(self.stringCoordinates[0][1])
-        p4[1] -= 20
+        p4[0] -= 100
+        p4[1] += 0
+        
+        #print(p1,p2,p3,p4)
  
         return [p1,p2,p3,p4]
         
