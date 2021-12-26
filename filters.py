@@ -32,9 +32,8 @@ def drawContours(edges,frame):
     return frame
 
 def applyDilation(frame):
-    #kernel = numpy.ones((3,3),numpy.uint8)
     kernel = numpy.ones((3,3),numpy.uint8)
-    return cv2.dilate(frame,kernel, iterations=1)
+    return cv2.dilate(frame,kernel, iterations=2)
 
 def applyErosion(frame):
     kernel = numpy.ones((3,3),numpy.uint8)
@@ -43,6 +42,11 @@ def applyErosion(frame):
 def applyOpening(frame):
     kernel = numpy.ones((1,1),numpy.uint8)
     return cv2.morphologyEx(frame, cv2.MORPH_OPEN, kernel)
+
+
+def applyClosing(frame):
+    kernel = numpy.ones((7,7),numpy.uint8)
+    return cv2.morphologyEx(frame, cv2.MORPH_CLOSE, kernel)
 
 def applySobelX(frame): #vertical edges accented
     #sobelx = cv2.Sobel(frame,cv2.CV_64F,1,0,ksize=5)

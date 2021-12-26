@@ -65,30 +65,15 @@ class ARGuitar(object):
                     masked = filters.applySobelX(masked)
                     
                     """ Extract vertical fretlines"""
-                    rawFretLines = houghProcessing.getHoughLines(masked)
-                    print(rawFretLines)
-                    
-                    
-                    
-                
-                    self._captureManager.frame = masked
-                   
-                    # masked = filters.applyGaussianBlur(masked)
-                    # maskedEdges = filters.autoCannyEdge(masked)
-                    
-                    # """ Get candidate fret lines"""
-                    # lines = houghProcessing.getHoughLinesP(maskedEdges)
-                    # lines = houghProcessing.processFretLines(lines)
-                    # if lines is not None:
-                    #     for i in range(0, len(lines)):
-                    #         l = lines[i]
-                    #         cv2.line(frame, (l[0], l[1]), (l[2], l[3]), (0,255,255), 2, cv2.LINE_AA)
+                    houghProcessing.applyHoughLinesP(masked,frame)
+                    self._captureManager.frame = frame
+                 
                  
                 
                
                 """Update video frame that the user will see"""
-                #currentGuitar.drawString(frame)
-                #self._captureManager.frame = frame
+                currentGuitar.drawString(frame)
+                self._captureManager.frame = frame
         
 
             self._captureManager.exitFrame()

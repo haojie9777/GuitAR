@@ -106,16 +106,18 @@ def returnSlopeOfLine(line):
     return slope
 
 def applyHoughLines(edges,frame): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 100)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 50)
     # Draw the lines
     
     #remove lines similar to one another
-    lines = removeDuplicateLines(lines)
+    #lines = removeDuplicateLines(lines)
  
     if lines is not None:
         for i in range(0, len(lines)):
             rho = lines[i][0][0]
             theta = lines[i][0][1]
+            if theta < 2:
+                break
             print(theta)
             a = math.cos(theta)
             b = math.sin(theta)
@@ -123,7 +125,7 @@ def applyHoughLines(edges,frame):
             y0 = b * rho
             pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
             pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
-            cv2.line(frame, pt1, pt2, (0,255,255), 1, cv2.LINE_AA)
+            cv2.line(frame, pt1, pt2, (0,0,255), 2, cv2.LINE_AA)
     return frame
    
 def getHoughLines(edges): 
@@ -140,7 +142,7 @@ def applyHoughLinesP(edges, frame):
     #,threshold=50, minLineLength=30, maxLineGap=5)
     
     lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    ,threshold=30, minLineLength=30, maxLineGap=3)
+    ,threshold=5, minLineLength=30, maxLineGap=3)
     #print(houghProcessing.returnAngleOfLine(lines))
     
     # Draw the lines
@@ -153,7 +155,7 @@ def applyHoughLinesP(edges, frame):
             # if distance < 200:
             slope = returnSlopeOfLine(l)
             if slope < 100 and slope >= 1:
-                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,255,255), 1, cv2.LINE_AA)
+                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
     return frame
 
 def getHoughLinesP(edges):
