@@ -14,13 +14,15 @@ e.g: stringLines[0] = (rho, theta)
 
 fretPoints: list containing tuples of start and end point of line denoting a fret
 e.g fretPoints[1] = [(1,2),(3,4)]
+
+chords: dictionary containing 
 """
 class Guitar():
     
     def __init__(self):
         self.stringCoordinates = defaultdict(lambda: None)
         self.stringPoints = defaultdict(lambda: None)
-        self.fretPoints = defaultdict(lambda: None)
+        self.fretCoordinates = defaultdict(lambda: None)
 
         #indicate whether inital full string detection is carried out or not
         self.initialStringsFullyDetected = False 
@@ -69,6 +71,7 @@ class Guitar():
                     if abs(rho - self.stringPoints[i][0]) < 2:
                         #update this string's rho and theta
                         self.stringPoints[i] = (rho,theta)
+                       
                 
                 #store as coordinates
                 coordinates = houghProcessing.getStringLineCoordinates(self.stringPoints)
@@ -78,27 +81,45 @@ class Guitar():
             
     
     
-    def getFretPoints(self):
+    def getFretCoordinates(self):
         return self.fretPoints
        
-    def setFretPoints(self, fretNumber, points):
-        self.fretPoints[fretNumber] = points
+    """Store detected frets' coordinates. The first line detected is usually fret 0, and will
+    be ignored. The next 5 lines will be stored as the first 5 frets"""
+    def setFretCoordinates(self, coordinates):
+        if coordinates is None:
+            return
+        if len(coordinates) >= 6: #sufficient number of frets detected
+            for i,fret in enumerate(coordinates[1:6]):
+                self.fretCoordinates[i] = fret #fretcoordinates[0] is first fret's coordinates
+                self.initialFretsFullyDetected = True
+        #some frets not detected, need to check if current frame values close to prev frame
+        else:
+            if self.initialFretsFullyDetected:
+                for i,fret in enumerate(coordinates[1:6]):
+                    #update fret position if close to prev frame's position
+                    if abs(fret[0] - self.fretCoordinates[i][0]) < 2:
+                        self.fretCoordinates[i] = fret
         return
+    
+    """Display frets of the guitar in the frame"""
+    def drawFrets(self,frame):
+        if self.fretCoordinates is not None:
+            for i in range(0, len(self.fretCoordinates)):
+                l = self.fretCoordinates[i]
+                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
+        return
+    
+        
     
     def drawString(self,frame):
         for i in range(6):
             if self.stringCoordinates[i] is not None:
                 pt1 = self.stringCoordinates[i][0]
                 pt2 = self.stringCoordinates[i][1]
-                
                 #draw line on string
                 cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
                 
-                # #label string number
-                # stringNumber = str(i + 1)+ ""
-                # frame = cv2.putText(frame,stringNumber, pt1, \
-                #     cv2.FONT_HERSHEY_SIMPLEX, 1, 
-                #  (0,0,255), 2, cv2.LINE_AA, False)
         return frame
     
     def drawStringGivenCoordinates(self,frame,points):
@@ -107,15 +128,8 @@ class Guitar():
         for i in range(len(points)):
             pt1 = points[i][0]
             pt2 = points[i][1]
-            
             #draw line on string
             cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
-            
-            # #label string number
-            # stringNumber = str(i + 1)+ ""
-            # frame = cv2.putText(frame,stringNumber, pt1, \
-            #     cv2.FONT_HERSHEY_SIMPLEX, 1, 
-            #     (0,0,255), 2, cv2.LINE_AA, False)
         return frame
     
 
@@ -130,20 +144,24 @@ class Guitar():
         p1 = list(self.stringCoordinates[0][0])
         #offset to make bounding box slightly bigger than fretboard
         p1[1] -= 15
-        p1[0] -= 80
+        p1[0] -= 60
         p2 = list(self.stringCoordinates[5][0])
         p2[1] += 40
-        p2[0] -= 65
+        p2[0] -= 50
         p3 = list(self.stringCoordinates[5][1])
         p3[0] -= 100
         p3[1] += 70
         p4 = list(self.stringCoordinates[0][1])
         p4[0] -= 100
         p4[1] += 0
-        
-        #print(p1,p2,p3,p4)
- 
+    
         return [p1,p2,p3,p4]
+    
+    
+    
+    
+   
+        
         
         
         

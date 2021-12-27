@@ -84,7 +84,7 @@ def getStringLineCoordinates(lines):
         if x2_x1 == 0: #catch divide by 0 error in gradient calculation
             break
         gradient = float( (pt2[1] - pt1[1]) / x2_x1)
-        new_x_pt1 = pt1[0] + 80 #shift the new x coordinate by 80 pixels
+        new_x_pt1 = pt1[0] + 60 #shift the new x coordinate by 80 pixels
         new_y_pt1 = gradient*(new_x_pt1) - gradient*pt1[0] + pt1[1]
         
         new_pt1 = (int(new_x_pt1),int(new_y_pt1))
@@ -172,7 +172,7 @@ def getHoughLinesP(edges):
     # lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
     # ,threshold=50, minLineLength=30, maxLineGap=3)
     lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
-    ,threshold=30, minLineLength=30, maxLineGap=3)
+    ,threshold=50, minLineLength=40, maxLineGap=3)
     return lines
 
 def processFretLines(lines):
@@ -185,10 +185,11 @@ def processFretLines(lines):
         if 1 <= slope < 100:
             frets.append(list(lines[i][0]))
     
-    #remove similar lines
-    #sort by x coordinate of every line
-    frets.sort(key=lambda x:x[0])
+   
+    #sort by x coordinate of every line, so lower frets first
+    frets.sort(key=lambda x:x[0], reverse = True)
   
+    #combine and average out lines that are close to each other
     result = []
     i = 0 #current lines
     j = 1 #additional lines
@@ -212,8 +213,18 @@ def processFretLines(lines):
         result.append((x1,y1,x2,y2))
   
         i += j
-        j = 1
-    return result
+        j = 1 
+        
+        #lengthen lines to be longer than frets
+    lengthenedFrets = []
+    for i,fret in enumerate(result):
+        length = math.sqrt((fret[0]-fret[2])**2 + (fret[1]-fret[3])**2)
+        x2 = int(fret[2] + (fret[2]-fret[0])/length*15)
+        y2 = int(fret[3] + (fret[3]-fret[1])/length*15)
+        fret = (fret[0],fret[1],x2,y2)
+        lengthenedFrets.append(fret)
+        
+    return lengthenedFrets
 
       
     

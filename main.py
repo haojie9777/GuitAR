@@ -52,7 +52,7 @@ class ARGuitar(object):
                 if currentGuitar.getFretboardBoundingBoxPoints():
                     pts = np.array(currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
                     pts = pts.reshape((-1,1,2))
-                    cv2.polylines(frame,[pts],True,(255,0,0),2, cv2.LINE_AA)
+                    cv2.polylines(frame,[pts],True,(0,255,255),2, cv2.LINE_AA)
                 
                     
                     """create mask on fretboard to perform fret detection"""
@@ -64,14 +64,12 @@ class ARGuitar(object):
                     """ Extract fret lines segments"""
                     rawFretLines = houghProcessing.getHoughLinesP(masked)
                     processedFretLines = houghProcessing.processFretLines(rawFretLines)
-                    print(processedFretLines)
-                    houghProcessing.drawFrets(processedFretLines,frame)
-                    
-              
-                    
-                    
-                 
-               
+                
+                    """Update the guitar object with new fret coordinates""" 
+                    currentGuitar.setFretCoordinates(processedFretLines)
+                    currentGuitar.drawFrets(frame)
+        
+                
                 """Update video frame that the user will see"""
                 currentGuitar.drawString(frame)
                 self._captureManager.frame = frame
