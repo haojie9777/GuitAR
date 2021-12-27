@@ -20,7 +20,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h1 align="center">guitAR: A final year computer science project</h1>
+  <h1 align="center">guitAR, a markerless augmented reality approach for learning the guitar</h1>
 </div>
 
 <!-- TABLE OF CONTENTS -->
