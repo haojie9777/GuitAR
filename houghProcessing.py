@@ -131,7 +131,7 @@ def applyHoughLines(edges,frame):
     return frame
    
 def getHoughLines(edges): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 140, min_theta=1.10, max_theta=1.5)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 150, min_theta=1.10, max_theta=1.5)
     
     #remove duplicate lines 
     lines = removeDuplicateLines(lines)
@@ -242,8 +242,8 @@ def convertNpToListForStrings(lines):
         if line[0][0] > 0:
             result.append((line[0][0],line[0][1]))
     
-    #sort by highest rho value first (lowest string first)
-    result.sort(key=lambda x:x[0], reverse =True)
+    #sort by lowest rho value first (first line detected is upper edge of fretboard)
+    result.sort(key=lambda x:x[0])
     return result
     
 

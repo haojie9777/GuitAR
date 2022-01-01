@@ -7,9 +7,11 @@ from collections import defaultdict
 class to represent a guitar object and information about its string and frets.
 
 stringCoordinates: dictionary containing start and end coordinates of 6 strings
+and 2 outer edges of fretboard
 e.g: stringPoints[0] = [(1,2), (3,4)]
 
 stringPoints: dictionary containing (rho and theta) tuple of 6 strings
+and 2 outer edges of fretboard
 e.g: stringLines[0] = (rho, theta)
 
 fretPoints: list containing tuples of start and end point of line denoting a fret
@@ -41,8 +43,8 @@ class Guitar():
     def setStringCoordinates(self, coordinates):
         if coordinates is None:
             return
-        if len(coordinates) == 6: #Successfully detect all 6 lines in this frame
-            for i in range(6):
+        if len(coordinates) == 8: #Successfully detect all 8 lines in this frame
+            for i in range(8):
                 #first line is string 1 (top string)
                 self.stringCoordinates[i] = coordinates[i]
             self.initialStringsFullyDetected = True
@@ -60,9 +62,9 @@ class Guitar():
     def setStringPoints(self, points):
         if points is None:
                 return
-        #Successfully detect all 6 lines in this frame
-        if len(points) == 6: 
-            for i in range(6):
+        #Successfully detect all 8 lines in this frame
+        if len(points) == 8: 
+            for i in range(8):
                 self.stringPoints[i] = points[i]
             self.initialStringsFullyDetected = True
             #save coordinates of strings for this frame
@@ -120,12 +122,12 @@ class Guitar():
         
     
     def drawString(self,frame):
-        for i in range(6):
+        for i in range(len(self.stringCoordinates)):
             if self.stringCoordinates[i] is not None:
                 pt1 = self.stringCoordinates[i][0]
                 pt2 = self.stringCoordinates[i][1]
                 #draw line on string
-                cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
+                cv2.line(frame, pt1, pt2, (0,255,0),2,cv2.LINE_AA)
                 
         return frame
     
@@ -148,17 +150,17 @@ class Guitar():
         if not self.initialStringsFullyDetected:
             return None
         #define 4 corners of bounding box
-        p1 = list(self.stringCoordinates[0][0])
+        p1 = list(self.stringCoordinates[1][0])
         #offset to make bounding box slightly bigger than fretboard
         p1[1] -= 15
         p1[0] -= 60
-        p2 = list(self.stringCoordinates[5][0])
+        p2 = list(self.stringCoordinates[6][0])
         p2[1] += 40
         p2[0] -= 50
-        p3 = list(self.stringCoordinates[5][1])
+        p3 = list(self.stringCoordinates[6][1])
         p3[0] -= 100
         p3[1] += 70
-        p4 = list(self.stringCoordinates[0][1])
+        p4 = list(self.stringCoordinates[1][1])
         p4[0] -= 100
         p4[1] += 0
     

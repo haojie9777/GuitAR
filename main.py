@@ -38,42 +38,38 @@ class ARGuitar(object):
                
                 """Get the string lines"""
                 rawStringLines = houghProcessing.getHoughLines(edges)
-                #print(rawStringLines)
-            
+              
                 """Process string lines and get (rho,theta) points of strings"""
-            
                 #(rho, theta) of strings
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(rawStringLines)
-                if rhoThetaStrings:
-                    print(rhoThetaStrings)
-                # """Update the guitar object with new string points""" 
-                # if rhoThetaStrings:  
-                #     currentGuitar.setStringPoints(rhoThetaStrings)
+                """Update the guitar object with new string points""" 
+                if rhoThetaStrings:  
+                    currentGuitar.setStringPoints(rhoThetaStrings)
                 
-                # """Draw bounding box on fretboard and use it for a mask"""
-                # if currentGuitar.getFretboardBoundingBoxPoints():
-                #     pts = np.array(currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
-                #     pts = pts.reshape((-1,1,2))
-                #     cv2.polylines(frame,[pts],True,(0,255,255),2, cv2.LINE_AA)
+                """Draw bounding box on fretboard and use it for a mask"""
+                if currentGuitar.getFretboardBoundingBoxPoints():
+                    pts = np.array(currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
+                    pts = pts.reshape((-1,1,2))
+                    cv2.polylines(frame,[pts],True,(0,255,255),2, cv2.LINE_AA)
                 
                     
-                #     """create mask on fretboard to perform fret detection"""
-                #     cv2.fillConvexPoly(maskFrame,pts,(255,255,255))
-                #     masked = cv2.bitwise_and(frame, frame, mask=maskFrame)
-                #     masked = filters.applyThreshold(masked, "manual")
-                #     masked = filters.applySobelX(masked)
+                    """create mask on fretboard to perform fret detection"""
+                    cv2.fillConvexPoly(maskFrame,pts,(255,255,255))
+                    masked = cv2.bitwise_and(frame, frame, mask=maskFrame)
+                    masked = filters.applyThreshold(masked, "manual")
+                    masked = filters.applySobelX(masked)
                     
-                #     """ Extract fret lines segments"""
-                #     rawFretLines = houghProcessing.getHoughLinesP(masked)
-                #     processedFretLines = houghProcessing.processFretLines(rawFretLines)
+                    """ Extract fret lines segments"""
+                    rawFretLines = houghProcessing.getHoughLinesP(masked)
+                    processedFretLines = houghProcessing.processFretLines(rawFretLines)
         
-                #     """Update the guitar object with new fret coordinates""" 
-                #     currentGuitar.setFretCoordinates(processedFretLines)
-                #     currentGuitar.drawFrets(frame)
+                    """Update the guitar object with new fret coordinates""" 
+                    currentGuitar.setFretCoordinates(processedFretLines)
+                    currentGuitar.drawFrets(frame)
         
                 
                 """Update video frame that the user will see"""
-                # currentGuitar.drawString(frame)
+                currentGuitar.drawString(frame)
                 # currentGuitar.showChord(frame,"c")
                 self._captureManager.frame = frame
         
