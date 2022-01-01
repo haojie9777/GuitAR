@@ -16,7 +16,7 @@ fretPoints: list containing tuples of start and end point of line denoting a fre
 e.g fretPoints[0] = [(1,2),(3,4)] we store fret 0 to fret 5's coordinates
 
 chords: dictionary containing position of chords in terms of string and fret
-chords["c"] = [(2,3), (4,2), (5,1)]
+chords["c"] = [(1,3), (3,2), (4,1)]
 
 """
 class Guitar():
