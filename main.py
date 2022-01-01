@@ -64,7 +64,7 @@ class ARGuitar(object):
                     """ Extract fret lines segments"""
                     rawFretLines = houghProcessing.getHoughLinesP(masked)
                     processedFretLines = houghProcessing.processFretLines(rawFretLines)
-                
+        
                     """Update the guitar object with new fret coordinates""" 
                     currentGuitar.setFretCoordinates(processedFretLines)
                     currentGuitar.drawFrets(frame)
@@ -72,6 +72,7 @@ class ARGuitar(object):
                 
                 """Update video frame that the user will see"""
                 currentGuitar.drawString(frame)
+                #currentGuitar.showChord(frame,"c")
                 self._captureManager.frame = frame
         
 

@@ -13,9 +13,11 @@ stringPoints: dictionary containing (rho and theta) tuple of 6 strings
 e.g: stringLines[0] = (rho, theta)
 
 fretPoints: list containing tuples of start and end point of line denoting a fret
-e.g fretPoints[1] = [(1,2),(3,4)]
+e.g fretPoints[0] = [(1,2),(3,4)] we store fret 0 to fret 5's coordinates
 
-chords: dictionary containing 
+chords: dictionary containing position of chords in terms of string and fret
+chords["c"] = [(2,3), (4,2), (5,1)]
+
 """
 class Guitar():
     
@@ -23,7 +25,12 @@ class Guitar():
         self.stringCoordinates = defaultdict(lambda: None)
         self.stringPoints = defaultdict(lambda: None)
         self.fretCoordinates = defaultdict(lambda: None)
+        self.chords = defaultdict(lambda: None)
 
+        
+        #initialize chords
+        self.chords["c"] = [(2,3), (4,2), (5,1)]
+        
         #indicate whether inital full string detection is carried out or not
         self.initialStringsFullyDetected = False 
         self.initialFretsFullyDetected = False
@@ -52,7 +59,7 @@ class Guitar():
     """
     def setStringPoints(self, points):
         if points is None:
-            return
+                return
         #Successfully detect all 6 lines in this frame
         if len(points) == 6: 
             for i in range(6):
@@ -72,10 +79,10 @@ class Guitar():
                         #update this string's rho and theta
                         self.stringPoints[i] = (rho,theta)
                        
-                
                 #store as coordinates
                 coordinates = houghProcessing.getStringLineCoordinates(self.stringPoints)
                 self.setStringCoordinates(coordinates)
+     
             return
                 
             
@@ -90,13 +97,13 @@ class Guitar():
         if coordinates is None:
             return
         if len(coordinates) >= 6: #sufficient number of frets detected
-            for i,fret in enumerate(coordinates[1:6]):
-                self.fretCoordinates[i] = fret #fretcoordinates[0] is first fret's coordinates
+            for i,fret in enumerate(coordinates[0:6]):
+                self.fretCoordinates[i] = fret #store fret 0 to fret 5's coordinates
                 self.initialFretsFullyDetected = True
         #some frets not detected, need to check if current frame values close to prev frame
         else:
             if self.initialFretsFullyDetected:
-                for i,fret in enumerate(coordinates[1:6]):
+                for i,fret in enumerate(coordinates[0:6]):
                     #update fret position if close to prev frame's position
                     if abs(fret[0] - self.fretCoordinates[i][0]) < 2:
                         self.fretCoordinates[i] = fret
@@ -156,6 +163,67 @@ class Guitar():
         p4[1] += 0
     
         return [p1,p2,p3,p4]
+    
+      
+    def line(self,p1, p2):
+        A = (p1[1] - p2[1])
+        B = (p2[0] - p1[0])
+        C = (p1[0]*p2[1] - p2[0]*p1[1])
+        return A, B, -C
+
+    def intersection(self,L1, L2):
+        D  = L1[0] * L2[1] - L1[1] * L2[0]
+        Dx = L1[2] * L2[1] - L1[1] * L2[2]
+        Dy = L1[0] * L2[2] - L1[2] * L2[0]
+        if D != 0:
+            x = Dx / D
+            y = Dy / D
+            return x,y
+        else:
+            return False
+    
+    """
+    Draws circles representing notes of a chord
+    """
+    def showChord(self,frame,chord):
+        #can't show chord since insufficient information
+        if not self.initialFretsFullyDetected or not self.initialStringsFullyDetected:
+            return frame
+        #retrieve chord fingering information
+        chordInformation = self.chords[chord]
+        for i,note in enumerate(chordInformation):
+            
+            p1 = list(self.stringCoordinates[note[0]][0])
+            p2 = list(self.stringCoordinates[note[0]][1])
+            string = self.line(p1,p2)
+            
+            p1 = list(self.fretCoordinates[note[1]][0:2])
+            p2 = list(self.fretCoordinates[note[1]][2:4])
+            higherFret = self.line(p1,p2)
+            
+            R = (self.intersection(string, higherFret))
+            x,y = R
+            x = int(x)
+            y = int(y)
+           
+            if R:
+                print("Intersection detected:", R)
+                cv2.circle(frame,(x,y), 5, (255,0,0), -1)
+            else:
+                print("No single intersection point detected")
+                    
+    
+    
+                
+                
+            
+        
+        
+        
+        
+        
+        
+        
     
     
     
