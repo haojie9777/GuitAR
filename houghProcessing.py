@@ -12,12 +12,12 @@ Handles all line processing related utilities
 def removeDuplicateLines(lines):
     if lines is None:
         return
-    strong_lines = np.zeros([7,1,2])
+    strong_lines = np.zeros([8,1,2])
         
     n2 = 0
     for n1 in range(0,len(lines)):
         for rho,theta in lines[n1]:
-            if n2 == 7: #added this line
+            if n2 == 8: #added this line
                 return strong_lines
             if n1 == 0:
                 strong_lines[n2] = lines[n1]
@@ -29,7 +29,7 @@ def removeDuplicateLines(lines):
                 closeness_rho = np.isclose(rho,strong_lines[0:n2,0,0],atol = 11)
                 closeness_theta = np.isclose(theta,strong_lines[0:n2,0,1],atol = np.pi/36)
                 closeness = np.all([closeness_rho,closeness_theta],axis=0)
-                if not any(closeness) and n2 < 7:
+                if not any(closeness) and n2 < 8:
                         strong_lines[n2] = lines[n1]
                         n2 += 1
     return strong_lines
@@ -107,30 +107,31 @@ def returnSlopeOfLine(line):
     return slope
 
 def applyHoughLines(edges,frame): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 50)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 140, min_theta=1.10, max_theta=1.5)
     # Draw the lines
     
+    
     #remove lines similar to one another
-    #lines = removeDuplicateLines(lines)
+    lines = removeDuplicateLines(lines)
+    print(lines)
  
     if lines is not None:
         for i in range(0, len(lines)):
             rho = lines[i][0][0]
             theta = lines[i][0][1]
-            if theta < 2:
+            if theta <= 0:
                 break
-            print(theta)
             a = math.cos(theta)
             b = math.sin(theta)
             x0 = a * rho
             y0 = b * rho
             pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
             pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
-            cv2.line(frame, pt1, pt2, (0,0,255), 2, cv2.LINE_AA)
+            cv2.line(frame, pt1, pt2, (0,255,0), 2, cv2.LINE_AA)
     return frame
    
 def getHoughLines(edges): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 150)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 140, min_theta=1.10, max_theta=1.5)
     
     #remove duplicate lines 
     lines = removeDuplicateLines(lines)
@@ -227,64 +228,23 @@ def processFretLines(lines):
     return lengthenedFrets
 
       
-    
-'''
-Remove unwanted lines detected, by using 2-means clustering
-lines belonging in the largest cluster are assumed to be detected strings,
-and will be returned
-sample of rho and theta of all 6 strings detected
-[[364.           1.30899692]
- [389.           1.30899692]
- [410.           1.30899692]
- [427.           1.30899692]
- [442.           1.30899692]
- [470.           1.30899692]]
-'''
-def processStringLinesByKmeans(lines):
-  
-    if lines is None:
-        return
-    #saved as we need the rho at the end
-    originalLines = lines
-    #remove rho from line array as we don't need it for cluster
-    #thetaArray is nxmxj, n is number of lines and n is column 
-    thetaArray = np.delete(lines,[0],2)
-    thetaArray = np.reshape(thetaArray,(7,1))
-    thetaArray = np.float32(thetaArray)
-    
-    # Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
-    #criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)\
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
-    flags = cv2.KMEANS_RANDOM_CENTERS
-    compactness,labels,centers = cv2.kmeans(thetaArray,2,None,criteria,10,flags)
-    a = thetaArray[labels==0]
-    b = thetaArray[labels==1]
-    #Get majority cluster
-    if np.count_nonzero(a) > np.count_nonzero(b):
-        originalLines = originalLines[labels==0]
-    else:
-        originalLines = originalLines[labels==1]
-    
-    #sort by highest rho value first (lowest string first)
-    sortedLines = originalLines[originalLines[:,0].argsort()]
-    return sortedLines
+
 
 """
 convert lines w rho and theta from np.array to list of tuples of (rho, theta)
-only keep lines with 1.10 < theta <= 1.5,
-to reduce abnormal lines
+Also sort them in ascending rho value
 """
 def convertNpToListForStrings(lines):
     result = []
     if lines is None:
         return result
-    for rho,theta in lines:
-        if 1.10 < theta <= 1.5: #ensure line is in normal range of guitar usage
-            result.append((rho, theta))
+    for line in lines:
+        if line[0][0] > 0:
+            result.append((line[0][0],line[0][1]))
+    
+    #sort by highest rho value first (lowest string first)
+    result.sort(key=lambda x:x[0], reverse =True)
     return result
-        
-            
-
     
 
 """
@@ -375,6 +335,48 @@ def getLocalMaximaOfLine(frame, linePoints):
     return result
 
 
+'''
+Remove unwanted lines detected, by using 2-means clustering
+lines belonging in the largest cluster are assumed to be detected strings,
+and will be returned
+sample of rho and theta of all 6 strings detected
+[[364.           1.30899692]
+ [389.           1.30899692]
+ [410.           1.30899692]
+ [427.           1.30899692]
+ [442.           1.30899692]
+ [470.           1.30899692]]
+'''
+def processStringLinesByKmeans(lines):
+    
+  
+    if lines is None:
+        return
+    #saved as we need the rho at the end
+    originalLines = lines
+    #remove rho from line array as we don't need it for cluster
+    #thetaArray is nxmxj, n is number of lines and n is column 
+    thetaArray = np.delete(lines,[0],2)
+    thetaArray = np.reshape(thetaArray,(8,1))
+    thetaArray = np.float32(thetaArray)
+    
+    # Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
+    #criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)\
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+    flags = cv2.KMEANS_RANDOM_CENTERS
+    compactness,labels,centers = cv2.kmeans(thetaArray,2,None,criteria,10,flags)
+    a = thetaArray[labels==0]
+    b = thetaArray[labels==1]
+    #Get majority cluster
+    if np.count_nonzero(a) > np.count_nonzero(b):
+        originalLines = originalLines[labels==0]
+    else:
+        originalLines = originalLines[labels==1]
+    
+    #sort by highest rho value first (lowest string first)
+    sortedLines = originalLines[originalLines[:,0].argsort()]
+    
+    return sortedLines
    
   
     
