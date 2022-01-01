@@ -12,13 +12,16 @@ e.g: stringPoints[0] = [(1,2), (3,4)]
 
 stringPoints: dictionary containing (rho and theta) tuple of 6 strings
 and 2 outer edges of fretboard
-e.g: stringLines[0] = (rho, theta)
+e.g: stringLines[0] = upper edge of fretboard
+     stringLines[1] = string 1
+     ...
+     stringLines[7] = lower edge of fretboard
 
 fretPoints: list containing tuples of start and end point of line denoting a fret
 e.g fretPoints[0] = [(1,2),(3,4)] we store fret 0 to fret 5's coordinates
 
 chords: dictionary containing position of chords in terms of string and fret
-chords["c"] = [(1,3), (3,2), (4,1)]
+chords["c"] = [(2,3), (4,2), (5,1)]-> first note is on string 2 and mid pt of fret 2 and 3
 
 """
 class Guitar():
@@ -127,7 +130,7 @@ class Guitar():
                 pt1 = self.stringCoordinates[i][0]
                 pt2 = self.stringCoordinates[i][1]
                 #draw line on string
-                cv2.line(frame, pt1, pt2, (0,255,0),2,cv2.LINE_AA)
+                cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
                 
         return frame
     
