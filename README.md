@@ -53,6 +53,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
+![image](https://user-images.githubusercontent.com/69890658/147913369-85817898-feb0-4aee-8ecb-fb1843fe0b92.png)
 
 ![prototype](https://user-images.githubusercontent.com/69890658/147402276-915694d0-ac49-4294-ac0a-c80f9140e429.jpg)
 
