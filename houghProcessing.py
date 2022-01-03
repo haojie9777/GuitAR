@@ -173,7 +173,7 @@ def getHoughLinesP(edges):
     # lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
     # ,threshold=50, minLineLength=30, maxLineGap=3)
     lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
-    ,threshold=50, minLineLength=40, maxLineGap=3)
+    ,threshold=50, minLineLength=50, maxLineGap=3)
     return lines
 
 def processFretLines(lines):
@@ -220,8 +220,11 @@ def processFretLines(lines):
     lengthenedFrets = []
     for i,fret in enumerate(result):
         length = math.sqrt((fret[0]-fret[2])**2 + (fret[1]-fret[3])**2)
-        x2 = int(fret[2] + (fret[2]-fret[0])/length*15)
-        y2 = int(fret[3] + (fret[3]-fret[1])/length*15)
+        scale = 25
+        if length < 85:
+            scale = 45
+        x2 = int(fret[2] + (fret[2]-fret[0])/length*scale)
+        y2 = int(fret[3] + (fret[3]-fret[1])/length*scale)
         fret = (fret[0],fret[1],x2,y2)
         lengthenedFrets.append(fret)
         

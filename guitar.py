@@ -96,30 +96,42 @@ class Guitar():
     def getFretCoordinates(self):
         return self.fretPoints
        
-    """Store detected frets' coordinates. The first line detected is usually fret 0, and will
-    be ignored. The next 5 lines will be stored as the first 5 frets"""
+    """Store detected frets' coordinates, from fret 0 to fret 5"""
     def setFretCoordinates(self, coordinates):
         if coordinates is None:
             return
-        if len(coordinates) >= 6: #sufficient number of frets detected
+        if len(coordinates) >= 6 and not self.initialFretsFullyDetected: #sufficient number of frets detected
             for i,fret in enumerate(coordinates[0:6]):
                 self.fretCoordinates[i] = fret #store fret 0 to fret 5's coordinates
-                self.initialFretsFullyDetected = True
+            self.initialFretsFullyDetected = True
+            return
+        elif len(coordinates) >= 6 and self.initialFretsFullyDetected: #update position from prev frame if close in x coordinate
+            for i,fret in enumerate(coordinates[0:6]):
+                if abs(fret[0] - self.fretCoordinates[i][0]) < 30:
+                    self.fretCoordinates[i] = fret
+            return
+    
+        
+        
+                
+                
+    
         #some frets not detected, need to check if current frame values close to prev frame
-        else:
-            if self.initialFretsFullyDetected:
-                for i,fret in enumerate(coordinates[0:6]):
-                    #update fret position if close to prev frame's position
-                    if abs(fret[0] - self.fretCoordinates[i][0]) < 2:
-                        self.fretCoordinates[i] = fret
-        return
+        # else:
+        #     if self.initialFretsFullyDetected:
+        #         for i,fret in enumerate(coordinates[0:6]):
+        #             print("corrected")
+        #             #update fret position if close to prev frame's position
+        #             if abs(fret[0] - self.fretCoordinates[i][0]) < 2:
+        #                 self.fretCoordinates[i] = fret
+        # return
     
     """Display frets of the guitar in the frame"""
     def drawFrets(self,frame):
         if self.fretCoordinates is not None:
             for i in range(0, len(self.fretCoordinates)):
                 l = self.fretCoordinates[i]
-                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
+                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,255,0), 2, cv2.LINE_AA)
         return
     
         
@@ -166,7 +178,7 @@ class Guitar():
         p4 = list(self.stringCoordinates[1][1])
         p4[0] -= 100
         p4[1] += 0
-    
+        
         return [p1,p2,p3,p4]
     
       
@@ -176,6 +188,9 @@ class Guitar():
         C = (p1[0]*p2[1] - p2[0]*p1[1])
         return A, B, -C
 
+    """
+    Find intersection of two lines using crammer's rule
+    """
     def intersection(self,L1, L2):
         D  = L1[0] * L2[1] - L1[1] * L2[0]
         Dx = L1[2] * L2[1] - L1[1] * L2[2]
@@ -196,29 +211,47 @@ class Guitar():
             return frame
         #retrieve chord fingering information
         chordInformation = self.chords[chord]
+        
+        
+        #alternate color for every note
+        noteColour = {0:(0,0,255), 1 :(0,255,0), 2:(255,0,0)}
+       
+        #display each note of chord
         for i,note in enumerate(chordInformation):
             
+            #get string line coordinates
             p1 = list(self.stringCoordinates[note[0]][0])
             p2 = list(self.stringCoordinates[note[0]][1])
             string = self.line(p1,p2)
             
+            #get higher fret line coordinates
             p1 = list(self.fretCoordinates[note[1]][0:2])
             p2 = list(self.fretCoordinates[note[1]][2:4])
             higherFret = self.line(p1,p2)
             
-            R = (self.intersection(string, higherFret))
-            x,y = R
-            x = int(x)
-            y = int(y)
+            R1 = (self.intersection(string, higherFret))
+            x1,y1 = R1
+            x1 = int(x1)
+            y1 = int(y1)
+            
+            #get lower fret line coordinates
+            p1 = list(self.fretCoordinates[note[1]-1][0:2])
+            p2 = list(self.fretCoordinates[note[1]-1][2:4])
+            lowerFret = self.line(p1,p2)
+            
+            R2 = (self.intersection(string, lowerFret))
+            x2,y2 = R2
+            x2 = int(x2)
+            y2 = int(y2)
            
-            if R:
-                print("Intersection detected:", R)
-                cv2.circle(frame,(x,y), 5, (255,0,0), -1)
-            else:
-                print("No single intersection point detected")
+            if R1 and R2: # Note is mid point of the intersection of both frets with the string
+                color = noteColour[(i%3)]
+                x = int((x1 + x2) /2)
+                y = int((y1 + y2) /2)
+                cv2.circle(frame,(x,y), 5, color, -1)
+       
                     
-    
-    
+
                 
                 
             

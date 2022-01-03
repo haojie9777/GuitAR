@@ -69,7 +69,7 @@ class ARGuitar(object):
         
                 
                 """Update video frame that the user will see"""
-                currentGuitar.drawString(frame)
+                #currentGuitar.drawString(frame)
                 currentGuitar.showChord(frame,"c")
                 self._captureManager.frame = frame
         
