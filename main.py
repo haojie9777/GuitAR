@@ -14,13 +14,16 @@ class ARGuitar(object):
         capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         self._captureManager = CaptureManager(
             capture, self._windowManager, True)
+        
+        """Holds information about the guitar"""
+        self._currentGuitar = guitar.Guitar()
+        
+        """decide whether to show a chord"""
+        self._chordToShow = None
 
     def run(self):
         """Run the main loop."""
         self._windowManager.createWindow()
-        
-        """Holds information about the guitar"""
-        currentGuitar = guitar.Guitar()
         
         while self._windowManager.isWindowCreated:
             self._captureManager.enterFrame()
@@ -44,11 +47,11 @@ class ARGuitar(object):
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(rawStringLines)
                 """Update the guitar object with new string points""" 
                 if rhoThetaStrings:  
-                    currentGuitar.setStringPoints(rhoThetaStrings)
+                    self._currentGuitar.setStringPoints(rhoThetaStrings)
                 
                 """Draw bounding box on fretboard and use it for a mask"""
-                if currentGuitar.getFretboardBoundingBoxPoints():
-                    pts = np.array(currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
+                if self._currentGuitar.getFretboardBoundingBoxPoints():
+                    pts = np.array(self._currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
                     pts = pts.reshape((-1,1,2))
                     cv2.polylines(frame,[pts],True,(0,255,255),2, cv2.LINE_AA)
                 
@@ -64,13 +67,14 @@ class ARGuitar(object):
                     processedFretLines = houghProcessing.processFretLines(rawFretLines)
         
                     """Update the guitar object with new fret coordinates""" 
-                    currentGuitar.setFretCoordinates(processedFretLines)
-                    currentGuitar.drawFrets(frame)
+                    self._currentGuitar.setFretCoordinates(processedFretLines)
+                    self._currentGuitar.drawFrets(frame)
         
                 
                 """Update video frame that the user will see"""
-                #currentGuitar.drawString(frame)
-                currentGuitar.showChord(frame,"c")
+                self._currentGuitar.drawString(frame)
+                if self._chordToShow:
+                    self._currentGuitar.showChord(frame,self._chordToShow)
                 self._captureManager.frame = frame
         
 
@@ -94,16 +98,11 @@ class ARGuitar(object):
                 self._captureManager.stopWritingVideo()
         elif keycode == 27: # escape
             self._windowManager.destroyWindow()
+        elif keycode == 99: #show c chord
+            self._chordToShow = "c"
+        elif keycode == 100: #show d chord
+            self._chordToShow = "d"
 
 if __name__=="__main__":
     ARGuitar().run()
     
-    
-'''  Unused stuff
-         3.Dilation to enlarge edges
-                #dilated = filters.applyDilation(thresh)
-                #eroded = filters.applyErosion(gaussianFiltered)
-                #3.5 sobel filters to accentuate vertical/horizontal edges
-                #verticalEdges = filters.applySobelX(edges)
-                # horizontalEdges = filters.applySobelY(edges)
-'''

@@ -35,6 +35,7 @@ class Guitar():
         
         #initialize chords
         self.chords["c"] = [(2,3), (4,2), (5,1)]
+        self.chords["d"] = [(4,2), (5,3),(6,2)]
         
         #indicate whether inital full string detection is carried out or not
         self.initialStringsFullyDetected = False 
@@ -80,7 +81,7 @@ class Guitar():
             if self.initialStringsFullyDetected:
                 for i, (rho, theta) in enumerate(points):
                      #this string's points close to pre frame's one, likely detected correctly
-                    if abs(rho - self.stringPoints[i][0]) < 2:
+                    if abs(rho - self.stringPoints[i][0]) <= 1.1:
                         #update this string's rho and theta
                         self.stringPoints[i] = (rho,theta)
                        
@@ -107,31 +108,17 @@ class Guitar():
             return
         elif len(coordinates) >= 6 and self.initialFretsFullyDetected: #update position from prev frame if close in x coordinate
             for i,fret in enumerate(coordinates[0:6]):
-                if abs(fret[0] - self.fretCoordinates[i][0]) < 30:
+                if abs(fret[0] - self.fretCoordinates[i][0]) < 40:
                     self.fretCoordinates[i] = fret
             return
-    
-        
-        
-                
-                
-    
-        #some frets not detected, need to check if current frame values close to prev frame
-        # else:
-        #     if self.initialFretsFullyDetected:
-        #         for i,fret in enumerate(coordinates[0:6]):
-        #             print("corrected")
-        #             #update fret position if close to prev frame's position
-        #             if abs(fret[0] - self.fretCoordinates[i][0]) < 2:
-        #                 self.fretCoordinates[i] = fret
-        # return
+
     
     """Display frets of the guitar in the frame"""
     def drawFrets(self,frame):
         if self.fretCoordinates is not None:
             for i in range(0, len(self.fretCoordinates)):
                 l = self.fretCoordinates[i]
-                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,255,0), 2, cv2.LINE_AA)
+                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
         return
     
         
@@ -214,7 +201,7 @@ class Guitar():
         
         
         #alternate color for every note
-        noteColour = {0:(0,0,255), 1 :(0,255,0), 2:(255,0,0)}
+        #noteColour = {0:(0,0,255), 1 :(0,255,0), 2:(255,0,0)}
        
         #display each note of chord
         for i,note in enumerate(chordInformation):
@@ -245,7 +232,8 @@ class Guitar():
             y2 = int(y2)
            
             if R1 and R2: # Note is mid point of the intersection of both frets with the string
-                color = noteColour[(i%3)]
+                #color = noteColour[(i%3)]
+                color = (255,0,255)
                 x = int((x1 + x2) /2)
                 y = int((y1 + y2) /2)
                 cv2.circle(frame,(x,y), 5, color, -1)
