@@ -8,7 +8,7 @@ from operator import add
 Handles all line processing related utilities 
 """
 
-
+"""Remove lines that are close to each other"""
 def removeDuplicateLines(lines):
     if lines is None:
         return
@@ -33,29 +33,6 @@ def removeDuplicateLines(lines):
                         strong_lines[n2] = lines[n1]
                         n2 += 1
     return strong_lines
-
-
-def drawStrings(lines,frame):
-    if lines is None:
-        return frame
-
-    for i in range(0, len(lines)):
-        rho = lines[i][0]
-        theta = lines[i][1]
-        #remove vertical lines and completed horizontal lines
-        if theta >= 1.5:
-            break
-    
-        a = math.cos(theta)
-        b = math.sin(theta)
-        x0 = a * rho
-        y0 = b * rho
-     
-        pt1 = (int(x0 + 0.5*(-b) ), int(y0 + 0.5*(a)) )
-        pt2 = (int(x0 - 700*(-b)), int(y0 - 700*(a)))
-        cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
-        #print(f"pt1:{pt1} pt2:{pt2}")
-    return frame
 
 '''
 Return coordinates of line segment from string lines defined in theta and rho
@@ -91,10 +68,8 @@ def getStringLineCoordinates(lines):
     
         result.append([new_pt1,pt2])
     return result
-    
-    
-    
-    
+
+"""Return slope of a line"""  
 def returnSlopeOfLine(line):
     if line is None:
         return
@@ -106,30 +81,8 @@ def returnSlopeOfLine(line):
   
     return slope
 
-def applyHoughLines(edges,frame): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 140, min_theta=1.10, max_theta=1.5)
-    # Draw the lines
-    
-    
-    #remove lines similar to one another
-    lines = removeDuplicateLines(lines)
-    print(lines)
- 
-    if lines is not None:
-        for i in range(0, len(lines)):
-            rho = lines[i][0][0]
-            theta = lines[i][0][1]
-            if theta <= 0:
-                break
-            a = math.cos(theta)
-            b = math.sin(theta)
-            x0 = a * rho
-            y0 = b * rho
-            pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
-            pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
-            cv2.line(frame, pt1, pt2, (0,255,0), 2, cv2.LINE_AA)
-    return frame
-   
+
+"""get string lines"""
 def getHoughLines(edges): 
     lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 150, min_theta=1.10, max_theta=1.5)
     
@@ -137,37 +90,7 @@ def getHoughLines(edges):
     lines = removeDuplicateLines(lines)
     return lines
 
-            
-def applyHoughLinesP(edges, frame):
-    #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
-    
-    # lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    # ,threshold=5, minLineLength=30, maxLineGap=3)
-    lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    ,threshold=50, minLineLength=30, maxLineGap=3)
-
-    # Draw the lines
-    if lines is not None:
-        i =0
-        print(lines)
-        for i in range(0, len(lines)):
-            l = lines[i][0]
-            slope = returnSlopeOfLine(l) #slope = 100 is infinity
-            if slope < 100 and slope >= 1:
-                print(slope)
-                i+=1
-                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
-    print(i)
-    return frame
-
-def drawFrets(frets, frame):
-    if frets is not None:
-        for i in range(0, len(frets)):
-            l = frets[i]
-            cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
-        
-
-"""Used to get fret lines segments"""
+"""get fret lines segments"""
 def getHoughLinesP(edges):
     #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
     # lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
@@ -176,6 +99,7 @@ def getHoughLinesP(edges):
     ,threshold=50, minLineLength=50, maxLineGap=3)
     return lines
 
+"""Used for post processing of fret lines detection from hough transform"""      
 def processFretLines(lines):
     if lines is None:
         return
@@ -185,8 +109,7 @@ def processFretLines(lines):
         slope = returnSlopeOfLine(lines[i][0])
         if 1 <= slope < 100:
             frets.append(list(lines[i][0]))
-    
-   
+
     #sort by x coordinate of every line, so lower frets first
     frets.sort(key=lambda x:x[0], reverse = True)
   
@@ -215,7 +138,6 @@ def processFretLines(lines):
   
         i += j
         j = 1 
-        
         #lengthen lines to be longer than frets
     lengthenedFrets = []
     for i,fret in enumerate(result):
@@ -227,11 +149,7 @@ def processFretLines(lines):
         y2 = int(fret[3] + (fret[3]-fret[1])/length*scale)
         fret = (fret[0],fret[1],x2,y2)
         lengthenedFrets.append(fret)
-        
     return lengthenedFrets
-
-      
-
 
 """
 convert lines w rho and theta from np.array to list of tuples of (rho, theta)
@@ -248,7 +166,83 @@ def convertNpToListForStrings(lines):
     #sort by lowest rho value first (first line detected is upper edge of fretboard)
     result.sort(key=lambda x:x[0])
     return result
+
+"""-----------------------------------------------unused methods-----------------------------------------------------------------------------------"""
+
+def drawStrings(lines,frame):
+    if lines is None:
+        return frame
+
+    for i in range(0, len(lines)):
+        rho = lines[i][0]
+        theta = lines[i][1]
+        #remove vertical lines and completed horizontal lines
+        if theta >= 1.5:
+            break
     
+        a = math.cos(theta)
+        b = math.sin(theta)
+        x0 = a * rho
+        y0 = b * rho
+     
+        pt1 = (int(x0 + 0.5*(-b) ), int(y0 + 0.5*(a)) )
+        pt2 = (int(x0 - 700*(-b)), int(y0 - 700*(a)))
+        cv2.line(frame, pt1, pt2, (0,255,0), 1, cv2.LINE_AA)
+        #print(f"pt1:{pt1} pt2:{pt2}")
+    return frame
+
+def applyHoughLines(edges,frame): 
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 140, min_theta=1.10, max_theta=1.5)
+    # Draw the lines
+    
+    
+    #remove lines similar to one another
+    lines = removeDuplicateLines(lines)
+    print(lines)
+ 
+    if lines is not None:
+        for i in range(0, len(lines)):
+            rho = lines[i][0][0]
+            theta = lines[i][0][1]
+            if theta <= 0:
+                break
+            a = math.cos(theta)
+            b = math.sin(theta)
+            x0 = a * rho
+            y0 = b * rho
+            pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
+            pt2 = (int(x0 - 800*(-b)), int(y0 - 800*(a)))
+            cv2.line(frame, pt1, pt2, (0,255,0), 2, cv2.LINE_AA)
+    return frame
+   
+            
+def applyHoughLinesP(edges, frame):
+    #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
+    
+    # lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
+    # ,threshold=5, minLineLength=30, maxLineGap=3)
+    lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
+    ,threshold=50, minLineLength=30, maxLineGap=3)
+
+    # Draw the lines
+    if lines is not None:
+        i =0
+        print(lines)
+        for i in range(0, len(lines)):
+            l = lines[i][0]
+            slope = returnSlopeOfLine(l) #slope = 100 is infinity
+            if slope < 100 and slope >= 1:
+                print(slope)
+                i+=1
+                cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
+    print(i)
+    return frame
+
+def drawFrets(frets, frame):
+    if frets is not None:
+        for i in range(0, len(frets)):
+            l = frets[i]
+            cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
 
 """
 Get the intensity profile of a line
