@@ -79,7 +79,7 @@ def applyThreshold(frame, type = "adaptive",lineType = "string"):
             cv2.THRESH_BINARY,19,-2)
     elif type  == "adaptive" and lineType == "fret":
          thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-            cv2.THRESH_BINARY,15,-10)
+            cv2.THRESH_BINARY,19,-30)
     else:
         thresh = cv2.threshold(gray, 170, 255, cv2.THRESH_BINARY)[1]
         

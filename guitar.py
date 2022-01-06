@@ -105,7 +105,7 @@ class Guitar():
             return
         elif len(coordinates) >= 6 and self.initialFretsFullyDetected: #update position from prev frame if close in x coordinate
             for i,fret in enumerate(coordinates[0:6]):
-                if abs(fret[0] - self.fretCoordinates[i][0]) < 40:
+                if abs(fret[0] - self.fretCoordinates[i][0]) <= 30:
                     self.fretCoordinates[i] = fret
             return
 
@@ -150,20 +150,21 @@ class Guitar():
         if not self.initialStringsFullyDetected:
             return None
         #define 4 corners of bounding box
+        #Scale to make bounding box slightly bigger than fretboard
         p1 = list(self.stringCoordinates[1][0])
-        #offset to make bounding box slightly bigger than fretboard
-        p1[1] -= 15
-        p1[0] -= 60
+        p1[1] -= 50
+        p1[0] -= 50
+        
         p2 = list(self.stringCoordinates[6][0])
         p2[1] += 40
-        p2[0] -= 50
+        p2[0] -= 40
+    
         p3 = list(self.stringCoordinates[6][1])
-        p3[0] -= 100
-        p3[1] += 70
+        p3[1] += 50
+      
         p4 = list(self.stringCoordinates[1][1])
-        p4[0] -= 100
-        p4[1] += 0
-        
+        p4[1] -= 50
+      
         return [p1,p2,p3,p4]
     
       

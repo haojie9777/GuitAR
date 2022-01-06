@@ -52,33 +52,26 @@ class ARGuitar(object):
                 """Update the guitar object with new string points""" 
                 if rhoThetaStrings:  
                     self._currentGuitar.setStringPoints(rhoThetaStrings)
-                    print(len(rhoThetaStrings))
                 
                 """Draw bounding box on fretboard and use it for a mask"""
                 if self._currentGuitar.getFretboardBoundingBoxPoints():
                     pts = np.array(self._currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
                     pts = pts.reshape((-1,1,2))
                     cv2.polylines(frame,[pts],True,(0,255,255),2, cv2.LINE_AA)
-                
                     
                     """create mask on fretboard to perform fret detection"""
                     cv2.fillConvexPoly(maskFrame,pts,(255,255,255))
                     masked = cv2.bitwise_and(frame, frame, mask=maskFrame)
-                    #masked = filters.applyThreshold(masked, "manual")
                     masked = filters.applyThreshold(masked,"adaptive","fret")
-                    #masked = filters.applyDilation(masked)
-                    #masked = filters.applySobelX(masked)
-                    #frame = masked
-                   
+                    masked = filters.applySobelX(masked)
                  
                     """ Extract fret lines segments"""
-                    #frame = houghProcessing.applyHoughLinesP(masked, frame)
-                    #rawFretLines = houghProcessing.getHoughLinesP(masked)
-                    #processedFretLines = houghProcessing.processFretLines(rawFretLines)
+                    rawFretLines = houghProcessing.getHoughLinesP(masked)
+                    processedFretLines = houghProcessing.processFretLines(rawFretLines)
         
-                    # """Update the guitar object with new fret coordinates""" 
-                    #self._currentGuitar.setFretCoordinates(processedFretLines)
-                    #self._currentGuitar.drawFrets(frame)
+                    """Update the guitar object with new fret coordinates""" 
+                    self._currentGuitar.setFretCoordinates(processedFretLines)
+                    self._currentGuitar.drawFrets(frame)
         
                 
                 """Update video frame that the user will see"""
