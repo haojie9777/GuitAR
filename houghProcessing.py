@@ -84,7 +84,9 @@ def returnSlopeOfLine(line):
 
 """get string lines"""
 def getHoughLines(edges): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 150, min_theta=1.10, max_theta=1.5)
+    #lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 150, min_theta=1.10, max_theta=1.5)
+    #use thresholded result
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 250, min_theta=1.10, max_theta=1.5)
     
     #remove duplicate lines 
     lines = removeDuplicateLines(lines)
@@ -192,7 +194,7 @@ def drawStrings(lines,frame):
     return frame
 
 def applyHoughLines(edges,frame): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 140, min_theta=1.10, max_theta=1.5)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 250, min_theta=1.10, max_theta=1.5)
     # Draw the lines
     
     
@@ -221,21 +223,17 @@ def applyHoughLinesP(edges, frame):
     
     # lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
     # ,threshold=5, minLineLength=30, maxLineGap=3)
-    lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    ,threshold=50, minLineLength=30, maxLineGap=3)
+    lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
+    ,threshold=20, minLineLength=40, maxLineGap=3)
 
     # Draw the lines
     if lines is not None:
-        i =0
-        print(lines)
         for i in range(0, len(lines)):
             l = lines[i][0]
             slope = returnSlopeOfLine(l) #slope = 100 is infinity
             if slope < 100 and slope >= 1:
                 print(slope)
-                i+=1
                 cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
-    print(i)
     return frame
 
 def drawFrets(frets, frame):

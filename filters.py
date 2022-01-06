@@ -50,7 +50,7 @@ def applyClosing(frame):
 
 def applySobelX(frame): #vertical edges accented
     #sobelx = cv2.Sobel(frame,cv2.CV_64F,1,0,ksize=5)
-    sobelx = cv2.Sobel(frame,cv2.CV_8UC1,1,0,ksize=7)
+    sobelx = cv2.Sobel(frame,cv2.CV_8UC1,1,0,ksize=5)
     return sobelx
 
 def applySobelY(frame): #horizontal edges accented
@@ -70,13 +70,16 @@ def drawPoly(frame, pts: numpy.array):
     
     return cv2.polylines(frame, [pts], isClosed, color, thickness)
 
-def applyThreshold(frame, type = "adaptive"):
+def applyThreshold(frame, type = "adaptive",lineType = "string"):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    blur = cv2.medianBlur(gray, 5)
+    blur = cv2.medianBlur(gray,5)
     
-    if type  == "adaptive":
+    if type  == "adaptive" and lineType == "string":
         thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-            cv2.THRESH_BINARY,11,2)
+            cv2.THRESH_BINARY,19,-2)
+    elif type  == "adaptive" and lineType == "fret":
+         thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+            cv2.THRESH_BINARY,15,-10)
     else:
         thresh = cv2.threshold(gray, 170, 255, cv2.THRESH_BINARY)[1]
         

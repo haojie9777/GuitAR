@@ -37,17 +37,22 @@ class ARGuitar(object):
                 #restrict the area to search for guitar strings, to avoid curve string interference from guitar neck
                 roiFrame = frame[:,0:440]
                 gaussianFiltered = filters.applyGaussianBlur(roiFrame)
-                edges = filters.autoCannyEdge(gaussianFiltered) 
+                
+                #try thresholding
+                gaussianFiltered = filters.applyThreshold(gaussianFiltered,"adaptive")
+            
                
                 """Get the string lines"""
-                rawStringLines = houghProcessing.getHoughLines(edges)
-              
+                rawStringLines = houghProcessing.getHoughLines(gaussianFiltered)
+               
+             
                 """Process string lines and get (rho,theta) points of strings"""
                 #(rho, theta) of strings
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(rawStringLines)
                 """Update the guitar object with new string points""" 
                 if rhoThetaStrings:  
                     self._currentGuitar.setStringPoints(rhoThetaStrings)
+                    print(len(rhoThetaStrings))
                 
                 """Draw bounding box on fretboard and use it for a mask"""
                 if self._currentGuitar.getFretboardBoundingBoxPoints():
@@ -59,16 +64,21 @@ class ARGuitar(object):
                     """create mask on fretboard to perform fret detection"""
                     cv2.fillConvexPoly(maskFrame,pts,(255,255,255))
                     masked = cv2.bitwise_and(frame, frame, mask=maskFrame)
-                    masked = filters.applyThreshold(masked, "manual")
-                    masked = filters.applySobelX(masked)
-                    
+                    #masked = filters.applyThreshold(masked, "manual")
+                    masked = filters.applyThreshold(masked,"adaptive","fret")
+                    #masked = filters.applyDilation(masked)
+                    #masked = filters.applySobelX(masked)
+                    #frame = masked
+                   
+                 
                     """ Extract fret lines segments"""
-                    rawFretLines = houghProcessing.getHoughLinesP(masked)
-                    processedFretLines = houghProcessing.processFretLines(rawFretLines)
+                    #frame = houghProcessing.applyHoughLinesP(masked, frame)
+                    #rawFretLines = houghProcessing.getHoughLinesP(masked)
+                    #processedFretLines = houghProcessing.processFretLines(rawFretLines)
         
-                    """Update the guitar object with new fret coordinates""" 
-                    self._currentGuitar.setFretCoordinates(processedFretLines)
-                    self._currentGuitar.drawFrets(frame)
+                    # """Update the guitar object with new fret coordinates""" 
+                    #self._currentGuitar.setFretCoordinates(processedFretLines)
+                    #self._currentGuitar.drawFrets(frame)
         
                 
                 """Update video frame that the user will see"""

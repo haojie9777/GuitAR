@@ -66,7 +66,7 @@ class Guitar():
     def setStringPoints(self, points):
         if points is None:
                 return
-        #Successfully detect all 8 lines in this frame
+        #Successfully detect all 8 lines in this frame, 6 strings + top and bottom of fretboard
         if len(points) == 8: 
             for i in range(8):
                 self.stringPoints[i] = points[i]
@@ -81,7 +81,7 @@ class Guitar():
             if self.initialStringsFullyDetected:
                 for i, (rho, theta) in enumerate(points):
                      #this string's points close to pre frame's one, likely detected correctly
-                    if abs(rho - self.stringPoints[i][0]) <= 1.1:
+                    if abs(rho - self.stringPoints[i][0]) <= 0.5:
                         #update this string's rho and theta
                         self.stringPoints[i] = (rho,theta)
                        
@@ -90,9 +90,6 @@ class Guitar():
                 self.setStringCoordinates(coordinates)
      
             return
-                
-            
-    
     
     def getFretCoordinates(self):
         return self.fretPoints
@@ -126,10 +123,11 @@ class Guitar():
     def drawString(self,frame):
         for i in range(len(self.stringCoordinates)):
             if self.stringCoordinates[i] is not None:
-                pt1 = self.stringCoordinates[i][0]
-                pt2 = self.stringCoordinates[i][1]
-                #draw line on string
-                cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
+                if i != 0 and i != 7:
+                    pt1 = self.stringCoordinates[i][0]
+                    pt2 = self.stringCoordinates[i][1]
+                    #draw line on string
+                    cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
                 
         return frame
     
