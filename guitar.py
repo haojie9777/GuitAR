@@ -94,6 +94,21 @@ class Guitar():
     def getFretCoordinates(self):
         return self.fretPoints
        
+    # """Store detected frets' coordinates, from fret 0 to fret 5"""
+    # def setFretCoordinates(self, coordinates):
+    #     if coordinates is None:
+    #         return
+    #     if len(coordinates) >= 5 and not self.initialFretsFullyDetected: #sufficient number of frets detected
+    #         for i,fret in enumerate(coordinates[0:5]):
+    #             self.fretCoordinates[i] = fret #store fret 0 to fret 4's coordinates
+    #         self.initialFretsFullyDetected = True
+    #         return
+    #     elif len(coordinates) >= 5 and self.initialFretsFullyDetected: #update position from prev frame if close in x coordinate
+    #         for i,fret in enumerate(coordinates[0:5]):
+    #             if abs(fret[0] - self.fretCoordinates[i][0]) <= 30:
+    #                 self.fretCoordinates[i] = fret
+    #         return
+       
     """Store detected frets' coordinates, from fret 0 to fret 5"""
     def setFretCoordinates(self, coordinates):
         if coordinates is None:
@@ -102,13 +117,15 @@ class Guitar():
             for i,fret in enumerate(coordinates[0:5]):
                 self.fretCoordinates[i] = fret #store fret 0 to fret 4's coordinates
             self.initialFretsFullyDetected = True
-            return
-        elif len(coordinates) >= 5 and self.initialFretsFullyDetected: #update position from prev frame if close in x coordinate
-            for i,fret in enumerate(coordinates[0:5]):
-                if abs(fret[0] - self.fretCoordinates[i][0]) <= 40:
+        elif len(coordinates) >= 5 and self.initialFretsFullyDetected:
+             for i,fret in enumerate(coordinates[0:5]):
+                if abs(fret[0] - self.fretCoordinates[i][0]) >= 10: #update position only if too far
                     self.fretCoordinates[i] = fret
-            return
-
+        return
+                
+            
+            
+        
     
     """Display frets of the guitar in the frame"""
     def drawFrets(self,frame):

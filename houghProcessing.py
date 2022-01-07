@@ -94,11 +94,8 @@ def getHoughLines(edges):
 
 """get fret lines segments"""
 def getHoughLinesP(edges):
-    #lines are 2d arrays consisting of lines w 4 values: Xstart,Ystart,Xend,Yend)
-    # lines = cv2.HoughLinesP(edges, rho=5, theta= 5 * np.pi / 180
-    # ,threshold=50, minLineLength=30, maxLineGap=3)
-    lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    ,threshold=80, minLineLength=40, maxLineGap=3)
+    lines = cv2.HoughLinesP(edges, rho=2, theta= 2 * np.pi / 180
+    ,threshold=140, minLineLength=40, maxLineGap=3)
     return lines
 
 """Used for post processing of fret lines detection from hough transform"""      
@@ -125,7 +122,7 @@ def processFretLines(lines):
         y1 = frets[i][1]
         x2 = frets[i][2]
         y2 = frets[i][3]
-        while  i+j < len(frets) and abs(frets[i][0] - frets[i+j][0]) < 30: #close lines
+        while  i+j < len(frets) and abs(frets[i][0] - frets[i+j][0]) < 50: #close lines
             x1 += frets[i+j][0]
             y1 += frets[i+j][1]
             x2 += frets[i+j][2]
@@ -224,8 +221,8 @@ def applyHoughLinesP(edges, frame):
     
     # lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
     # ,threshold=5, minLineLength=30, maxLineGap=3)
-    lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
-    ,threshold=80, minLineLength=40, maxLineGap=3)
+    lines = cv2.HoughLinesP(edges, rho=3, theta= 2 * np.pi / 180
+    ,threshold=150, minLineLength=40, maxLineGap=3)
 
     # Draw the lines
     if lines is not None:

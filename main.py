@@ -13,7 +13,7 @@ class ARGuitar(object):
                                             self.onKeypress)
         capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         self._captureManager = CaptureManager(
-            capture, self._windowManager, True)
+            capture, self._windowManager, False)
         
         """Holds information about the guitar"""
         self._currentGuitar = guitar.Guitar()
@@ -30,7 +30,7 @@ class ARGuitar(object):
             frame = self._captureManager.frame
             
             if frame is not None:
-                
+                """Create a mask for later steps"""
                 maskFrame = np.zeros(frame.shape[:2], dtype="uint8")
          
                 """Extract edges from frame for line detection"""
@@ -39,12 +39,9 @@ class ARGuitar(object):
                 gaussianFiltered = filters.applyGaussianBlur(roiFrame)
                 thresholdedFrame = filters.applyThreshold(gaussianFiltered,"adaptive")
              
-              
                 """Get the string lines"""
-                #houghProcessing.applyHoughLines(thresholdedFrame,frame)
                 rawStringLines = houghProcessing.getHoughLines(thresholdedFrame)
             
-                
                 """Process string lines and get (rho,theta) points of strings"""
                 #(rho, theta) of strings
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(rawStringLines)
@@ -61,22 +58,36 @@ class ARGuitar(object):
                     """create mask on fretboard to perform fret detection"""
                     cv2.fillConvexPoly(maskFrame,pts,(255,255,255))
                     masked = cv2.bitwise_and(frame, frame, mask=maskFrame)
-                    masked = filters.applyThreshold(masked,"adaptive","fret")
+                    masked = filters.applyThreshold(masked,"manual","fret")
+                    masked = filters.applyDilation(masked)
                     masked = filters.applySobelX(masked)
-                    
+              
+                   
+            
                     """ Extract fret lines segments"""
                     rawFretLines = houghProcessing.getHoughLinesP(masked)
                     processedFretLines = houghProcessing.processFretLines(rawFretLines)
         
                     """Update the guitar object with new fret coordinates""" 
                     self._currentGuitar.setFretCoordinates(processedFretLines)
-                    self._currentGuitar.drawFrets(frame)
+                    #self._currentGuitar.drawFrets(frame)
         
                 
-                """Update video frame that the user will see"""
+                """Draw strings and show chord"""
                 self._currentGuitar.drawString(frame)
                 if self._chordToShow:
                     self._currentGuitar.showChord(frame,self._chordToShow)
+                    
+                """Reversed the frame and write text if needed"""
+                frame = np.fliplr(frame)
+                frame = frame.copy()
+                if self._chordToShow:
+                    chordText = self._chordToShow.upper()
+                    cv2.putText(frame, chordText, (200,200),\
+                        cv2.FONT_HERSHEY_COMPLEX, 3, (0,255,0), 2, cv2.LINE_AA)
+                    
+                    
+                """Update video frame that the user will see"""
                 self._captureManager.frame = frame
 
             self._captureManager.exitFrame()

@@ -16,13 +16,13 @@ def getCannyEdge(frame):
 
 #play around with monitor light to ensure most of the lines are detected
 def autoCannyEdge(image, sigma=0.33):
-        #grayFrame = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+        grayFrame = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
     	# compute the median of the single channel pixel intensities
         v = numpy.median(image)
         # apply automatic Canny edge detection using the computed median
         lower = int(max(0, (1.0 - sigma) * v))
         upper = int(min(255, (1.0 + sigma) * v))
-        edged = cv2.Canny(image, lower, upper)
+        edged = cv2.Canny(grayFrame, lower, upper)
         # return the edged image
         return edged
 
@@ -45,7 +45,7 @@ def applyOpening(frame):
 
 
 def applyClosing(frame):
-    kernel = numpy.ones((7,7),numpy.uint8)
+    kernel = numpy.ones((9,9),numpy.uint8)
     return cv2.morphologyEx(frame, cv2.MORPH_CLOSE, kernel)
 
 def applySobelX(frame): #vertical edges accented
@@ -79,9 +79,9 @@ def applyThreshold(frame, type = "adaptive",lineType = "string"):
             cv2.THRESH_BINARY,19,-5)
     elif type  == "adaptive" and lineType == "fret":
          thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-            cv2.THRESH_BINARY,19,-30)
+            cv2.THRESH_BINARY,19,-15)
     else:
-        thresh = cv2.threshold(gray, 170, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)[1]
         
     return thresh
 
