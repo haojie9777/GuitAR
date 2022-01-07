@@ -195,7 +195,6 @@ def drawStrings(lines,frame):
 
 def applyHoughLines(edges,frame): 
     lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 230, min_theta=1.10, max_theta=1.5)
-    # Draw the lines
     
     #remove lines similar to one another
     lines = removeDuplicateLines(lines)

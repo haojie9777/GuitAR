@@ -12,10 +12,10 @@ e.g: stringPoints[0] = [(1,2), (3,4)]
 
 stringPoints: dictionary containing (rho and theta) tuple of 6 strings
 and 2 outer edges of fretboard
-e.g: stringLines[0] = upper edge of fretboard
-     stringLines[1] = string 1
+e.g: stringLines[0] = string 1
+     stringLines[1] = string 2
      ...
-     stringLines[7] = lower edge of fretboard
+     stringLines[5] = string 6
 
 fretPoints: list containing tuples of start and end point of line denoting a fret
 e.g fretPoints[0] = [(1,2),(3,4)] we store fret 0 to fret 5's coordinates
@@ -34,8 +34,8 @@ class Guitar():
 
         
         #initialize chords
-        self.chords["c"] = [(2,3), (4,2), (5,1)]
-        self.chords["d"] = [(4,2), (5,3),(6,2)]
+        self.chords["c"] = [(1,3), (3,2), (4,1)]
+        self.chords["d"] = [(3,2), (4,3),(5,2)]
         
         #indicate whether inital full string detection is carried out or not
         self.initialStringsFullyDetected = False 
@@ -47,8 +47,8 @@ class Guitar():
     def setStringCoordinates(self, coordinates):
         if coordinates is None:
             return
-        if len(coordinates) == 8: #Successfully detect all 8 lines in this frame
-            for i in range(8):
+        if len(coordinates) == 6: #Successfully detect all 6 strings in this frame
+            for i in range(6):
                 #first line is string 1 (top string)
                 self.stringCoordinates[i] = coordinates[i]
             self.initialStringsFullyDetected = True
@@ -60,39 +60,36 @@ class Guitar():
     def getStringPoints(self):
         return self.stringPoints
     
+        
     """ 
-    updates the (rho,theta) points for every string if it is close to prev frame's value
+    updates the (rho,theta) points for every string
     """
     def setStringPoints(self, points):
         if points is None:
                 return
-        #Successfully detect all 8 lines in this frame, 6 strings + top and bottom of fretboard
-        if len(points) == 8: 
-            for i in range(8):
-                self.stringPoints[i] = points[i]
+        #detected 7 lines -> assumed to be bottom edge line + bottom 5 strings + top edge line
+        if len(points) == 7:
+            #first line is top edge
+            for i in range(1,5): #store middle 4 strings
+                self.stringPoints[i] = points[i] #2,3,4,5th strings saved
+                
+            #extrapolate for first and sixth strings rho and theta
+            dif = self.stringPoints[2][0] - self.stringPoints[1][0]
+            rho = self.stringPoints[1][0] - dif
+            theta = self.stringPoints[1][1]
+            self.stringPoints[0] = (rho, theta)
+        
+            dif = self.stringPoints[4][0] - self.stringPoints[3][0]
+            rho = self.stringPoints[4][0] + dif
+            theta = self.stringPoints[4][1]
+            self.stringPoints[5] = (rho, theta)
+            
             self.initialStringsFullyDetected = True
-            #save coordinates of strings for this frame
-            coordinates = houghProcessing.getStringLineCoordinates(points)
+            
+            coordinates = houghProcessing.getStringLineCoordinates(self.stringPoints)
             self.setStringCoordinates(coordinates)
             return
-        #some string not detected, need to check if current frame values close to prev frame
-        else: 
-            #proceed only if all 6 strings detected successfully beforehand
-            if self.initialStringsFullyDetected:
-                print("hello")
-                for i, (rho, theta) in enumerate(points):
-                     #this string's points close to pre frame's one, likely detected correctly
-                    if abs(rho - self.stringPoints[i][0]) <= 20:
-                        print(rho-self.stringPoints[i][0])
-                        
-                        #update this string's rho and theta
-                        self.stringPoints[i] = (rho,theta)
-                       
-                #store as coordinates
-                coordinates = houghProcessing.getStringLineCoordinates(self.stringPoints)
-                self.setStringCoordinates(coordinates)
      
-            return
     
     def getFretCoordinates(self):
         return self.fretPoints
@@ -121,17 +118,15 @@ class Guitar():
                 cv2.line(frame, (l[0], l[1]), (l[2],l[3]), (0,0,255), 2, cv2.LINE_AA)
         return
     
-        
     
     def drawString(self,frame):
         for i in range(len(self.stringCoordinates)):
             if self.stringCoordinates[i] is not None:
-                if i != 0 and i != 7:
-                    pt1 = self.stringCoordinates[i][0]
-                    pt2 = self.stringCoordinates[i][1]
-                    #draw line on string
-                    cv2.line(frame, pt1, pt2, (0,255,0),1,cv2.LINE_AA)
-                
+                pt1 = self.stringCoordinates[i][0]
+                pt2 = self.stringCoordinates[i][1]
+                #draw line on string
+                cv2.line(frame, pt1, pt2, (0,255,0),2,cv2.LINE_AA)
+            
         return frame
     
     def drawStringGivenCoordinates(self,frame,points):
@@ -154,18 +149,18 @@ class Guitar():
             return None
         #define 4 corners of bounding box
         #Scale to make bounding box slightly bigger than fretboard
-        p1 = list(self.stringCoordinates[1][0])
+        p1 = list(self.stringCoordinates[0][0])
         p1[1] -= 50
         p1[0] -= 50
         
-        p2 = list(self.stringCoordinates[6][0])
+        p2 = list(self.stringCoordinates[5][0])
         p2[1] += 40
         p2[0] -= 40
     
-        p3 = list(self.stringCoordinates[6][1])
+        p3 = list(self.stringCoordinates[5][1])
         p3[1] += 50
       
-        p4 = list(self.stringCoordinates[1][1])
+        p4 = list(self.stringCoordinates[0][1])
         p4[1] -= 50
       
         return [p1,p2,p3,p4]

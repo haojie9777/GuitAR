@@ -41,16 +41,16 @@ class ARGuitar(object):
              
               
                 """Get the string lines"""
-                #frame = thresholdedFrame
-                houghProcessing.applyHoughLines(thresholdedFrame, frame)
+                #houghProcessing.applyHoughLines(thresholdedFrame,frame)
                 rawStringLines = houghProcessing.getHoughLines(thresholdedFrame)
-                
+            
                 
                 """Process string lines and get (rho,theta) points of strings"""
                 #(rho, theta) of strings
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(rawStringLines)
                 """Update the guitar object with new string points""" 
                 if rhoThetaStrings:  
+                    print(len(rhoThetaStrings))
                     self._currentGuitar.setStringPoints(rhoThetaStrings)
                 
                 """Draw bounding box on fretboard and use it for a mask"""
@@ -71,7 +71,7 @@ class ARGuitar(object):
         
                     """Update the guitar object with new fret coordinates""" 
                     self._currentGuitar.setFretCoordinates(processedFretLines)
-                    #self._currentGuitar.drawFrets(frame)
+                    self._currentGuitar.drawFrets(frame)
         
                 
                 """Update video frame that the user will see"""
