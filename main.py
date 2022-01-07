@@ -37,15 +37,15 @@ class ARGuitar(object):
                 #restrict the area to search for guitar strings, to avoid curve string interference from guitar neck
                 roiFrame = frame[:,0:440]
                 gaussianFiltered = filters.applyGaussianBlur(roiFrame)
-                
-                #try thresholding
-                gaussianFiltered = filters.applyThreshold(gaussianFiltered,"adaptive")
-            
-               
-                """Get the string lines"""
-                rawStringLines = houghProcessing.getHoughLines(gaussianFiltered)
-               
+                thresholdedFrame = filters.applyThreshold(gaussianFiltered,"adaptive")
              
+              
+                """Get the string lines"""
+                #frame = thresholdedFrame
+                houghProcessing.applyHoughLines(thresholdedFrame, frame)
+                rawStringLines = houghProcessing.getHoughLines(thresholdedFrame)
+                
+                
                 """Process string lines and get (rho,theta) points of strings"""
                 #(rho, theta) of strings
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(rawStringLines)
@@ -64,14 +64,14 @@ class ARGuitar(object):
                     masked = cv2.bitwise_and(frame, frame, mask=maskFrame)
                     masked = filters.applyThreshold(masked,"adaptive","fret")
                     masked = filters.applySobelX(masked)
-                 
+                    
                     """ Extract fret lines segments"""
                     rawFretLines = houghProcessing.getHoughLinesP(masked)
                     processedFretLines = houghProcessing.processFretLines(rawFretLines)
         
                     """Update the guitar object with new fret coordinates""" 
                     self._currentGuitar.setFretCoordinates(processedFretLines)
-                    self._currentGuitar.drawFrets(frame)
+                    #self._currentGuitar.drawFrets(frame)
         
                 
                 """Update video frame that the user will see"""

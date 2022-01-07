@@ -86,7 +86,7 @@ def returnSlopeOfLine(line):
 def getHoughLines(edges): 
     #lines = cv2.HoughLines(edges, 1, 1*np.pi / 180, 150, min_theta=1.10, max_theta=1.5)
     #use thresholded result
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 250, min_theta=1.10, max_theta=1.5)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 230, min_theta=1.10, max_theta=1.5)
     
     #remove duplicate lines 
     lines = removeDuplicateLines(lines)
@@ -125,7 +125,7 @@ def processFretLines(lines):
         y1 = frets[i][1]
         x2 = frets[i][2]
         y2 = frets[i][3]
-        while  i+j < len(frets) and abs(frets[i][0] - frets[i+j][0]) < 20: #close lines
+        while  i+j < len(frets) and abs(frets[i][0] - frets[i+j][0]) < 30: #close lines
             x1 += frets[i+j][0]
             y1 += frets[i+j][1]
             x2 += frets[i+j][2]
@@ -194,14 +194,12 @@ def drawStrings(lines,frame):
     return frame
 
 def applyHoughLines(edges,frame): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 250, min_theta=1.10, max_theta=1.5)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 230, min_theta=1.10, max_theta=1.5)
     # Draw the lines
-    
     
     #remove lines similar to one another
     lines = removeDuplicateLines(lines)
-    print(lines)
- 
+
     if lines is not None:
         for i in range(0, len(lines)):
             rho = lines[i][0][0]

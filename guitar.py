@@ -79,9 +79,12 @@ class Guitar():
         else: 
             #proceed only if all 6 strings detected successfully beforehand
             if self.initialStringsFullyDetected:
+                print("hello")
                 for i, (rho, theta) in enumerate(points):
                      #this string's points close to pre frame's one, likely detected correctly
-                    if abs(rho - self.stringPoints[i][0]) <= 0.5:
+                    if abs(rho - self.stringPoints[i][0]) <= 20:
+                        print(rho-self.stringPoints[i][0])
+                        
                         #update this string's rho and theta
                         self.stringPoints[i] = (rho,theta)
                        
@@ -98,14 +101,14 @@ class Guitar():
     def setFretCoordinates(self, coordinates):
         if coordinates is None:
             return
-        if len(coordinates) >= 6 and not self.initialFretsFullyDetected: #sufficient number of frets detected
-            for i,fret in enumerate(coordinates[0:6]):
-                self.fretCoordinates[i] = fret #store fret 0 to fret 5's coordinates
+        if len(coordinates) >= 5 and not self.initialFretsFullyDetected: #sufficient number of frets detected
+            for i,fret in enumerate(coordinates[0:5]):
+                self.fretCoordinates[i] = fret #store fret 0 to fret 4's coordinates
             self.initialFretsFullyDetected = True
             return
-        elif len(coordinates) >= 6 and self.initialFretsFullyDetected: #update position from prev frame if close in x coordinate
-            for i,fret in enumerate(coordinates[0:6]):
-                if abs(fret[0] - self.fretCoordinates[i][0]) <= 30:
+        elif len(coordinates) >= 5 and self.initialFretsFullyDetected: #update position from prev frame if close in x coordinate
+            for i,fret in enumerate(coordinates[0:5]):
+                if abs(fret[0] - self.fretCoordinates[i][0]) <= 40:
                     self.fretCoordinates[i] = fret
             return
 
