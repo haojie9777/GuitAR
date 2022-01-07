@@ -144,12 +144,16 @@ def processFretLines(lines):
     lengthenedFrets = []
     for i,fret in enumerate(result):
         length = math.sqrt((fret[0]-fret[2])**2 + (fret[1]-fret[3])**2)
-        scale = 60
-        if length < 85:
-            scale = 70
+        scale = 40
+        
         x2 = int(fret[2] + (fret[2]-fret[0])/length*scale)
         y2 = int(fret[3] + (fret[3]-fret[1])/length*scale)
+        
+        x1 = int(fret[0] - (fret[2]-fret[0])/length*scale)
+        y1 = int(fret[1] - (fret[3]-fret[1])/length*scale)
+        
         fret = (fret[0],fret[1],x2,y2)
+        fret = (x1,y1,x2,y2)
         lengthenedFrets.append(fret)
     return lengthenedFrets
 

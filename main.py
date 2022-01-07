@@ -50,7 +50,6 @@ class ARGuitar(object):
                 rhoThetaStrings = houghProcessing.convertNpToListForStrings(rawStringLines)
                 """Update the guitar object with new string points""" 
                 if rhoThetaStrings:  
-                    print(len(rhoThetaStrings))
                     self._currentGuitar.setStringPoints(rhoThetaStrings)
                 
                 """Draw bounding box on fretboard and use it for a mask"""
