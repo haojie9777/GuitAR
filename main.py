@@ -78,7 +78,6 @@ class ARGuitar(object):
                 if self._chordToShow:
                     self._currentGuitar.showChord(frame,self._chordToShow)
                 self._captureManager.frame = frame
-        
 
             self._captureManager.exitFrame()
             self._windowManager.processEvents()
