@@ -55,10 +55,6 @@
 ## About The Project
 ![image](https://user-images.githubusercontent.com/69890658/148542744-8c4df37a-34f8-49e2-b518-7dd52fecfbae.png)
 ![image](https://user-images.githubusercontent.com/69890658/148542767-1415adde-a32b-4676-b287-3ca6efc7c669.png)
-
-
-![prototype](https://user-images.githubusercontent.com/69890658/147402276-915694d0-ac49-4294-ac0a-c80f9140e429.jpg)
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
