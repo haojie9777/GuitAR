@@ -36,6 +36,8 @@ class Guitar():
         #initialize chords
         self.chords["c"] = [(1,3), (3,2), (4,1)]
         self.chords["d"] = [(3,2), (4,3),(5,2)]
+        self.chords["g"] = [(0,3), (1,2), (5,3)]
+        self.chords["em"] = [(3,2), (4,2)]
         
         #indicate whether inital full string detection is carried out or not
         self.initialStringsFullyDetected = False 
@@ -94,21 +96,7 @@ class Guitar():
     def getFretCoordinates(self):
         return self.fretPoints
        
-    # """Store detected frets' coordinates, from fret 0 to fret 5"""
-    # def setFretCoordinates(self, coordinates):
-    #     if coordinates is None:
-    #         return
-    #     if len(coordinates) >= 5 and not self.initialFretsFullyDetected: #sufficient number of frets detected
-    #         for i,fret in enumerate(coordinates[0:5]):
-    #             self.fretCoordinates[i] = fret #store fret 0 to fret 4's coordinates
-    #         self.initialFretsFullyDetected = True
-    #         return
-    #     elif len(coordinates) >= 5 and self.initialFretsFullyDetected: #update position from prev frame if close in x coordinate
-    #         for i,fret in enumerate(coordinates[0:5]):
-    #             if abs(fret[0] - self.fretCoordinates[i][0]) <= 30:
-    #                 self.fretCoordinates[i] = fret
-    #         return
-       
+
     """Store detected frets' coordinates, from fret 0 to fret 5"""
     def setFretCoordinates(self, coordinates):
         if coordinates is None:
@@ -123,9 +111,7 @@ class Guitar():
                     self.fretCoordinates[i] = fret
         return
                 
-            
-            
-        
+                
     
     """Display frets of the guitar in the frame"""
     def drawFrets(self,frame):
@@ -212,11 +198,7 @@ class Guitar():
             return frame
         #retrieve chord fingering information
         chordInformation = self.chords[chord]
-        
-        
-        #alternate color for every note
-        #noteColour = {0:(0,0,255), 1 :(0,255,0), 2:(255,0,0)}
-       
+      
         #display each note of chord
         for i,note in enumerate(chordInformation):
             

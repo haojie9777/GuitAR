@@ -4,6 +4,7 @@ import filters
 import houghProcessing
 import guitar
 import numpy as np
+import winsound
 from managers import WindowManager, CaptureManager
 
 class ARGuitar(object):
@@ -83,7 +84,7 @@ class ARGuitar(object):
                 frame = frame.copy()
                 if self._chordToShow:
                     chordText = self._chordToShow.upper()
-                    cv2.putText(frame, chordText, (200,200),\
+                    cv2.putText(frame, chordText, (250,150),\
                         cv2.FONT_HERSHEY_COMPLEX, 3, (0,255,0), 2, cv2.LINE_AA)
                     
                     
@@ -112,8 +113,16 @@ class ARGuitar(object):
             self._windowManager.destroyWindow()
         elif keycode == 99: #show c chord
             self._chordToShow = "c"
+            winsound.PlaySound('sounds/C.wav', winsound.SND_ALIAS | winsound.SND_ASYNC)
         elif keycode == 100: #show d chord
             self._chordToShow = "d"
+            winsound.PlaySound('sounds/D.wav', winsound.SND_ALIAS | winsound.SND_ASYNC)
+        elif keycode == 101: #show d chord
+            self._chordToShow = "em"
+            winsound.PlaySound('sounds/Em.wav', winsound.SND_ALIAS | winsound.SND_ASYNC)
+        elif keycode == 103: #show d chord
+            self._chordToShow = "g"
+            winsound.PlaySound('sounds/G.wav', winsound.SND_ALIAS | winsound.SND_ASYNC)
 
 if __name__=="__main__":
     ARGuitar().run()
