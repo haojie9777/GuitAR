@@ -75,26 +75,21 @@ class ARGuitar(object):
                     rawFretLines = houghProcessing.getHoughLinesP(masked)
                     processedFretLines = houghProcessing.processFretLines(rawFretLines)
         
-                    """Update the guitar object with new fret coordinates""" 
-                    self._currentGuitar.setFretCoordinates(processedFretLines)
-                    #self._currentGuitar.drawFrets(frame)
+                   
                 
                 """Detect if fingers covering the fretboard"""
                 if self._currentGuitar.getFretboardBoundingBoxPoints(offset =False):
                     pts = np.array(self._currentGuitar.getFretboardBoundingBoxPoints(offset = False),np.int32)
                     pts = pts.reshape((-1,1,2))
                     skinFrame = cv2.bitwise_and(frame, frame, mask=maskFrame)
-                    if self._skinDetector.isSkinDetected(skinFrame):
-                        print("finger occlusion detected")
+                    if  not self._skinDetector.isSkinDetected(skinFrame):
+                        """Update the guitar object with new fret coordinates only when no finger occlusion""" 
+                        self._currentGuitar.setFretCoordinates(processedFretLines)
+                        #self._currentGuitar.drawFrets(frame)
              
                 
                     
-                    
-                    
-                
-                
-                    
-
+            
                 
                 """Draw strings and show chord"""
                 self._currentGuitar.drawString(frame)

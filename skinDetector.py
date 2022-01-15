@@ -18,4 +18,4 @@ class SkinDetector():
         #skinHSV = cv2.bitwise_and(frame, frame, mask = skinMask)
 
         
-        
+    
