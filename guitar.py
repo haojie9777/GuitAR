@@ -146,26 +146,33 @@ class Guitar():
     """
     Get the bounding box containing the first 5 frets of the fretboard, for fret detection
     """
-    def getFretboardBoundingBoxPoints(self):
+    def getFretboardBoundingBoxPoints(self, offset = True):
         #need to wait for first and sixth strings to be detected properly first
         if not self.initialStringsFullyDetected:
             return None
         #define 4 corners of bounding box
-        #Scale to make bounding box slightly bigger than fretboard
-        p1 = list(self.stringCoordinates[0][0])
-        p1[1] -= 50
-        p1[0] -= 50
+        #offset = True -> scale to make bounding box slightly bigger than fretboard
+        if offset:
+            p1 = list(self.stringCoordinates[0][0])
+            p1[1] -= 50
+            p1[0] -= 50
+            
+            p2 = list(self.stringCoordinates[5][0])
+            p2[1] += 40
+            p2[0] -= 40
         
-        p2 = list(self.stringCoordinates[5][0])
-        p2[1] += 40
-        p2[0] -= 40
-    
-        p3 = list(self.stringCoordinates[5][1])
-        p3[1] += 50
-      
-        p4 = list(self.stringCoordinates[0][1])
-        p4[1] -= 50
-      
+            p3 = list(self.stringCoordinates[5][1])
+            p3[1] += 50
+        
+            p4 = list(self.stringCoordinates[0][1])
+            p4[1] -= 50
+        #no offset
+        else:
+            p1 = list(self.stringCoordinates[0][0])
+            p2 = list(self.stringCoordinates[5][0])
+            p3 = list(self.stringCoordinates[5][1])
+            p4 = list(self.stringCoordinates[0][1])
+             
         return [p1,p2,p3,p4]
     
       

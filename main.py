@@ -2,6 +2,7 @@ import cv2
 import time
 import filters
 import houghProcessing
+import skinDetector
 import guitar
 import numpy as np
 import winsound
@@ -19,9 +20,13 @@ class ARGuitar(object):
         """Holds information about the guitar"""
         self._currentGuitar = guitar.Guitar()
         
+        """Hold information about finger occlusion"""
+        self._skinDetector = skinDetector.SkinDetector()
+        
         """decide whether to show a chord"""
         self._chordToShow = None
-
+        
+        
     def run(self):
         """Run the main loop."""
         self._windowManager.createWindow()
@@ -33,6 +38,7 @@ class ARGuitar(object):
             if frame is not None:
                 """Create a mask for later steps"""
                 maskFrame = np.zeros(frame.shape[:2], dtype="uint8")
+                
          
                 """Extract edges from frame for line detection"""
                 #restrict the area to search for guitar strings, to avoid curve string interference from guitar neck
@@ -72,7 +78,23 @@ class ARGuitar(object):
                     """Update the guitar object with new fret coordinates""" 
                     self._currentGuitar.setFretCoordinates(processedFretLines)
                     #self._currentGuitar.drawFrets(frame)
-        
+                
+                """Detect if fingers covering the fretboard"""
+                if self._currentGuitar.getFretboardBoundingBoxPoints(offset =False):
+                    pts = np.array(self._currentGuitar.getFretboardBoundingBoxPoints(offset = False),np.int32)
+                    pts = pts.reshape((-1,1,2))
+                    skinFrame = cv2.bitwise_and(frame, frame, mask=maskFrame)
+                    if self._skinDetector.isSkinDetected(skinFrame):
+                        print("finger occlusion detected")
+             
+                
+                    
+                    
+                    
+                
+                
+                    
+
                 
                 """Draw strings and show chord"""
                 self._currentGuitar.drawString(frame)
