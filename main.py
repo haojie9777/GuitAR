@@ -68,6 +68,7 @@ class ARGuitar(object):
                     masked = filters.applyThreshold(masked,"manual","fret")
                     masked = filters.applyDilation(masked)
                     masked = filters.applySobelX(masked)
+                   
               
                    
             
@@ -85,10 +86,10 @@ class ARGuitar(object):
                     if  not self._skinDetector.isSkinDetected(skinFrame):
                         """Update the guitar object with new fret coordinates only when no finger occlusion""" 
                         self._currentGuitar.setFretCoordinates(processedFretLines)
-                        #self._currentGuitar.drawFrets(frame)
+                        self._currentGuitar.drawFrets(frame)
+                    else:
+                        print("finger occlusion detected")
              
-                
-                    
             
                 
                 """Draw strings and show chord"""

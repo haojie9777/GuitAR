@@ -101,6 +101,7 @@ class Guitar():
     def setFretCoordinates(self, coordinates):
         if coordinates is None:
             return
+        print(len(coordinates))
         if len(coordinates) >= 5 and not self.initialFretsFullyDetected: #sufficient number of frets detected
             for i,fret in enumerate(coordinates[0:5]):
                 self.fretCoordinates[i] = fret #store fret 0 to fret 4's coordinates
