@@ -94,8 +94,8 @@ def getHoughLines(edges):
 
 """get fret lines segments"""
 def getHoughLinesP(edges):
-    lines = cv2.HoughLinesP(edges, rho=2, theta= 2 * np.pi / 180
-    ,threshold=140, minLineLength=40, maxLineGap=3)
+    lines = cv2.HoughLinesP(edges, rho=3, theta= 2 * np.pi / 180
+    ,threshold=250, minLineLength=40, maxLineGap=3)
     return lines
 
 """Used for post processing of fret lines detection from hough transform"""      
@@ -195,7 +195,8 @@ def drawStrings(lines,frame):
     return frame
 
 def applyHoughLines(edges,frame): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 230, min_theta=1.10, max_theta=1.5)
+    lines = cv2.HoughLinesP(edges, rho=2, theta= 2 * np.pi / 180
+    ,threshold=140, minLineLength=40, maxLineGap=3)
     
     #remove lines similar to one another
     lines = removeDuplicateLines(lines)
@@ -222,7 +223,7 @@ def applyHoughLinesP(edges, frame):
     # lines = cv2.HoughLinesP(edges, rho=1, theta= 2 * np.pi / 180
     # ,threshold=5, minLineLength=30, maxLineGap=3)
     lines = cv2.HoughLinesP(edges, rho=3, theta= 2 * np.pi / 180
-    ,threshold=150, minLineLength=40, maxLineGap=3)
+    ,threshold=180, minLineLength=30, maxLineGap=3)
 
     # Draw the lines
     if lines is not None:

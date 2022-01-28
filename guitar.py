@@ -101,14 +101,13 @@ class Guitar():
     def setFretCoordinates(self, coordinates):
         if coordinates is None:
             return
-        print(len(coordinates))
         if len(coordinates) >= 5 and not self.initialFretsFullyDetected: #sufficient number of frets detected
             for i,fret in enumerate(coordinates[0:5]):
                 self.fretCoordinates[i] = fret #store fret 0 to fret 4's coordinates
             self.initialFretsFullyDetected = True
         elif len(coordinates) >= 5 and self.initialFretsFullyDetected:
              for i,fret in enumerate(coordinates[0:5]):
-                if abs(fret[0] - self.fretCoordinates[i][0]) >= 10: #update position only if too far
+                if abs(fret[0] - self.fretCoordinates[i][0]) >= 20: #update position only if too far
                     self.fretCoordinates[i] = fret
         return
                 
@@ -155,18 +154,21 @@ class Guitar():
         #offset = True -> scale to make bounding box slightly bigger than fretboard
         if offset:
             p1 = list(self.stringCoordinates[0][0])
-            p1[1] -= 50
-            p1[0] -= 50
+            #p1[1] -= 50
+            p1[1] -= 10
+            p1[0] -= 70
             
             p2 = list(self.stringCoordinates[5][0])
-            p2[1] += 40
+            #p2[1] += 40
+            p2[1] += 60
             p2[0] -= 40
         
             p3 = list(self.stringCoordinates[5][1])
             p3[1] += 50
         
             p4 = list(self.stringCoordinates[0][1])
-            p4[1] -= 50
+            #p4[1] -= 50
+            p4[1] -= 30
         #no offset
         else:
             p1 = list(self.stringCoordinates[0][0])

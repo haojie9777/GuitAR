@@ -67,16 +67,13 @@ class ARGuitar(object):
                     masked = cv2.bitwise_and(frame, frame, mask=maskFrame)
                     masked = filters.applyThreshold(masked,"manual","fret")
                     masked = filters.applyDilation(masked)
+                    masked = filters.applyErosion(masked)
                     masked = filters.applySobelX(masked)
-                   
-              
-                   
             
                     """ Extract fret lines segments"""
                     rawFretLines = houghProcessing.getHoughLinesP(masked)
                     processedFretLines = houghProcessing.processFretLines(rawFretLines)
-        
-                   
+                    
                 
                 """Detect if fingers covering the fretboard"""
                 if self._currentGuitar.getFretboardBoundingBoxPoints(offset =False):

@@ -20,10 +20,11 @@ class SkinDetector():
         skinMask = cv2.erode(skinMask, kernel, iterations = 2)
         skinMask = cv2.dilate(skinMask, kernel, iterations = 2)
         skinMask = cv2.GaussianBlur(skinMask, (3, 3), 0)
-        
+
+        #skinHSV = cv2.bitwise_and(frame, frame, mask = skinMask)
         #sufficient pixels similar to skin
         return np.count_nonzero(skinMask) > 5000
-        #skinHSV = cv2.bitwise_and(frame, frame, mask = skinMask)
+      
 
         
     
