@@ -37,7 +37,7 @@ class Guitar():
         self.chords["c"] = [(1,3), (3,2), (4,1)]
         self.chords["d"] = [(3,2), (4,3),(5,2)]
         self.chords["g"] = [(0,3), (1,2), (5,3)]
-        self.chords["em"] = [(3,2), (4,2)]
+        self.chords["em"] = [(1,2), (2,2)]
         
         #indicate whether inital full string detection is carried out or not
         self.initialStringsFullyDetected = False 
@@ -102,12 +102,20 @@ class Guitar():
         if coordinates is None:
             return
         if len(coordinates) >= 5 and not self.initialFretsFullyDetected: #sufficient number of frets detected
+            #determine if inital set of coordinates have similar x distance between them. Else, probably bad detection and reject
+            gap = abs(coordinates[0][0]-coordinates[1][0])
+            for i in range(1,len(coordinates)-1):
+                if  gap -10 <= abs(coordinates[i][0] - coordinates[i+1][0]) <= gap + 10:
+                    gap = abs(coordinates[i][0]-coordinates[i+1][0])
+                else:
+                    return
+            print("fret coordinates good for inital detection")
             for i,fret in enumerate(coordinates[0:5]):
                 self.fretCoordinates[i] = fret #store fret 0 to fret 4's coordinates
             self.initialFretsFullyDetected = True
-        elif len(coordinates) >= 5 and self.initialFretsFullyDetected:
+        elif len(coordinates) >= 6 and self.initialFretsFullyDetected:
              for i,fret in enumerate(coordinates[0:5]):
-                if abs(fret[0] - self.fretCoordinates[i][0]) < 30: #update position only if too far
+                if abs(fret[0] - self.fretCoordinates[i][0]) <= 10: #update position only if too far
                     self.fretCoordinates[i] = fret
         return
                 

@@ -80,7 +80,7 @@ class ARGuitar(object):
                     pts = np.array(self._currentGuitar.getFretboardBoundingBoxPoints(offset = False),np.int32)
                     pts = pts.reshape((-1,1,2))
                     skinFrame = cv2.bitwise_and(frame, frame, mask=maskFrame)
-                    if  not self._skinDetector.isSkinDetected(skinFrame):
+                    if not self._skinDetector.isSkinDetected(skinFrame):
                         """Update the guitar object with new fret coordinates only when no finger occlusion""" 
                         self._currentGuitar.setFretCoordinates(processedFretLines)
                         self._currentGuitar.drawFrets(frame)
@@ -100,7 +100,7 @@ class ARGuitar(object):
                 for idx,pts in self._currentGuitar.getStringCoordinates().items():
                     #account for flip
                     correctedPt = (640 -pts[0][0],pts[0][1])
-                    cv2.putText(frame,str(idx+1),correctedPt,\
+                    cv2.putText(frame,str(6-idx),correctedPt,\
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),2,cv2.LINE_AA)
                 if self._chordToShow:
                     chordText = self._chordToShow.upper()
