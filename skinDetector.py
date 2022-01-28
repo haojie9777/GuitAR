@@ -23,7 +23,7 @@ class SkinDetector():
 
         #skinHSV = cv2.bitwise_and(frame, frame, mask = skinMask)
         #sufficient pixels similar to skin
-        return np.count_nonzero(skinMask) > 5000
+        return np.count_nonzero(skinMask) > 8000
       
 
         

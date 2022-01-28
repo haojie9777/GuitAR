@@ -107,7 +107,7 @@ class Guitar():
             self.initialFretsFullyDetected = True
         elif len(coordinates) >= 5 and self.initialFretsFullyDetected:
              for i,fret in enumerate(coordinates[0:5]):
-                if abs(fret[0] - self.fretCoordinates[i][0]) >= 20: #update position only if too far
+                if abs(fret[0] - self.fretCoordinates[i][0]) < 30: #update position only if too far
                     self.fretCoordinates[i] = fret
         return
                 

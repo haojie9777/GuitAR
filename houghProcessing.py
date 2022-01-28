@@ -61,7 +61,8 @@ def getStringLineCoordinates(lines):
         if x2_x1 == 0: #catch divide by 0 error in gradient calculation
             break
         gradient = float( (pt2[1] - pt1[1]) / x2_x1)
-        new_x_pt1 = pt1[0] + 60 #shift the new x coordinate by 80 pixels
+        #new_x_pt1 = pt1[0] + 60 #shift the new x coordinate by 80 pixels
+        new_x_pt1 = pt1[0]  #shift the new x coordinate by 80 pixels
         new_y_pt1 = gradient*(new_x_pt1) - gradient*pt1[0] + pt1[1]
         
         new_pt1 = (int(new_x_pt1),int(new_y_pt1))

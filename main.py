@@ -97,6 +97,11 @@ class ARGuitar(object):
                 """Reversed the frame and write text if needed"""
                 frame = np.fliplr(frame)
                 frame = frame.copy()
+                for idx,pts in self._currentGuitar.getStringCoordinates().items():
+                    #account for flip
+                    correctedPt = (640 -pts[0][0],pts[0][1])
+                    cv2.putText(frame,str(idx+1),correctedPt,\
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),2,cv2.LINE_AA)
                 if self._chordToShow:
                     chordText = self._chordToShow.upper()
                     cv2.putText(frame, chordText, (250,150),\
