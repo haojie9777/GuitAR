@@ -12,7 +12,7 @@ class SkinDetector():
     
     def isSkinDetected(self, frame):
         #crop out head of guitar neck, as it results in false positive
-        frame = frame[:,:450]
+        frame = frame[:,:550]
         
         converted = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         skinMask = cv2.inRange(converted, self.lower, self.upper)

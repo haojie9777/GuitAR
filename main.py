@@ -8,6 +8,7 @@ import numpy as np
 import winsound
 from managers import WindowManager, CaptureManager
 
+
 class ARGuitar(object):
 
     def __init__(self):
@@ -25,6 +26,11 @@ class ARGuitar(object):
         
         """decide whether to show a chord"""
         self._chordToShow = None
+        
+        """Indicate whether the player's fingers are blocking the frets"""
+        self._occluded = False
+        
+        
         
         
     def run(self):
@@ -83,9 +89,11 @@ class ARGuitar(object):
                     if not self._skinDetector.isSkinDetected(skinFrame):
                         """Update the guitar object with new fret coordinates only when no finger occlusion""" 
                         self._currentGuitar.setFretCoordinates(processedFretLines)
-                        self._currentGuitar.drawFrets(frame)
+                        self._occluded = False
+                        #self._currentGuitar.drawFrets(frame)
                     else:
                         print("finger occlusion detected")
+                        self._occluded = True
              
             
                 
@@ -107,6 +115,20 @@ class ARGuitar(object):
                     cv2.putText(frame, chordText, (250,150),\
                         cv2.FONT_HERSHEY_COMPLEX, 3, (0,255,0), 2, cv2.LINE_AA)
                     
+                """if calibration of fret and string successful, indicate on the frame"""
+                if self._currentGuitar.initialStringsFullyDetected and self._currentGuitar.initialFretsFullyDetected:
+                    cv2.putText(frame, "Calibration Successful", (200,450),\
+                    cv2.FONT_HERSHEY_COMPLEX, 0.5, (0,255,0), 1, cv2.LINE_AA)
+                
+                """indicate if user's fingers are blocking the fretboard, causing poor detection"""
+                if self._occluded:
+                    cv2.putText(frame, "Fretboard Occluded", (400,450),\
+                    cv2.FONT_HERSHEY_COMPLEX, 0.5, (0,0,255), 1, cv2.LINE_AA)
+                    
+                    
+           
+                
+                
                     
                 """Update video frame that the user will see"""
                 self._captureManager.frame = frame
