@@ -53,8 +53,9 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-![image](https://user-images.githubusercontent.com/69890658/148570725-87002474-1437-4c65-9c00-7c16dbe4ad77.png)
-![image](https://user-images.githubusercontent.com/69890658/148570772-fd27c95a-de33-4018-8eed-42a739b1e6fb.png)
+![demopic1](https://user-images.githubusercontent.com/69890658/152667516-aadfea87-08c9-4432-a1f3-b7d5a0f1a86b.PNG)
+![demopic2](https://user-images.githubusercontent.com/69890658/152667521-a8d99a94-90ff-4371-9541-8c99b64b6773.PNG)
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
