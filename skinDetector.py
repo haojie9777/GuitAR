@@ -38,7 +38,7 @@ class SkinDetector():
         skinMask = cv2.inRange(converted, min_YCrCb, max_YCrCb)
         skinYCrCb = cv2.bitwise_and(frame, frame, mask = skinMask)
         #sufficient pixels similar to skin
-        return np.count_nonzero(skinMask) > 10000
+        return np.count_nonzero(skinMask) > 8000
       
       
       

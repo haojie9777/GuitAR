@@ -85,8 +85,8 @@ def returnSlopeOfLine(line):
 
 #get string lines
 def getHoughLines(edges): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 230, min_theta=1.10, max_theta=1.5)
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 260, min_theta=1.10, max_theta=1.5)
+    #lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 260, min_theta=1.10, max_theta=1.5)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 300, min_theta=1.10, max_theta=1.5)
     
     #remove duplicate lines 
     lines = removeDuplicateLines(lines)
@@ -197,7 +197,7 @@ def drawStrings(lines,frame):
     return frame
 
 def applyHoughLines(edges,frame): 
-    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 230, min_theta=1.10, max_theta=1.5)
+    lines = cv2.HoughLines(edges, 1, 1*np.pi/180, 300, min_theta=1.10, max_theta=1.5)
     
     #remove lines similar to one another
     lines = removeDuplicateLines(lines)

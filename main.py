@@ -51,6 +51,8 @@ class ARGuitar(object):
              
                 """Get the string lines"""
                 rawStringLines = houghTransform.getHoughLines(thresholdedFrame)
+                
+                # frame = houghTransform.applyHoughLines(thresholdedFrame, frame)
             
                 """Process string lines and get (rho,theta) points of strings"""
                 #(rho, theta) of strings
