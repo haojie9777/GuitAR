@@ -53,7 +53,10 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
+![Screenshot](screenshots/default.png)
+![Screenshot](screenshots/c_chord.png)
+![Screenshot](screenshots/d_chord.png)
+![Screenshot](screenshots/g_chord.png)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
