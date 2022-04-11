@@ -18,16 +18,16 @@ class ARGuitar(object):
         self._captureManager = CaptureManager(
             capture, self._windowManager, False)
         
-        #Holds information about the guitar
+        """Holds information about the guitar"""
         self._currentGuitar = guitar.Guitar()
         
-        #Hold information about finger occlusion
+        """Hold information about finger occlusion"""
         self._skinDetector = skinDetector.SkinDetector()
         
-        #decide whether to show a chord
+        """decide whether to show a chord"""
         self._chordToShow = None
         
-        #Indicate whether the player's fingers are blocking the frets
+        """Indicate whether the player's fingers are blocking the frets"""
         self._occluded = False
         
     def run(self):
@@ -45,7 +45,6 @@ class ARGuitar(object):
                 """Extract edges from frame for line detection"""
                 #restrict the area to search for guitar strings, to avoid curve string interference from guitar neck
                 roiFrame = frame[:,0:440]
-                roiFrame = frame
                 gaussianFiltered = filters.applyGaussianBlur(roiFrame)
                 thresholdedFrame = filters.applyThreshold(gaussianFiltered,"adaptive")
              
@@ -60,7 +59,7 @@ class ARGuitar(object):
                     self._currentGuitar.setStringPoints(rhoThetaStrings)
                 
                 """Draw bounding box on fretboard and use it for a mask"""
-                if self._currentGuitar.getFretboardBoundingBoxPoints(offset=True):
+                if self._currentGuitar.getFretboardBoundingBoxPoints():
                     pts = np.array(self._currentGuitar.getFretboardBoundingBoxPoints(),np.int32)
                     pts = pts.reshape((-1,1,2))
                     cv2.polylines(frame,[pts],True,(0,255,255),2, cv2.LINE_AA)
@@ -76,7 +75,6 @@ class ARGuitar(object):
                     """ Extract fret lines segments"""
                     rawFretLines = houghTransform.getHoughLinesP(masked)
                     processedFretLines = houghTransform.processFretLines(rawFretLines)
-                  
                     
                 
                 """Detect if fingers covering the fretboard"""
@@ -84,7 +82,7 @@ class ARGuitar(object):
                     pts = np.array(self._currentGuitar.getFretboardBoundingBoxPoints(offset = False),np.int32)
                     pts = pts.reshape((-1,1,2))
                     skinFrame = cv2.bitwise_and(frame, frame, mask=maskFrame)
-                    if not self._skinDetector.isSkinDetected(skinFrame) or not self._currentGuitar.initialFretsFullyDetected:
+                    if not self._skinDetector.isSkinDetected(skinFrame):
                         """Update the guitar object with new fret coordinates only when no finger occlusion""" 
                         self._currentGuitar.setFretCoordinates(processedFretLines)
                         self._occluded = False
@@ -103,11 +101,11 @@ class ARGuitar(object):
                 """Reversed the frame and write text if needed"""
                 frame = np.fliplr(frame)
                 frame = frame.copy()
-                # for idx,pts in self._currentGuitar.getStringCoordinates().items():
-                #     #account for flip
-                #     correctedPt = (640 -pts[0][0],pts[0][1])
-                #     cv2.putText(frame,str(6-idx),correctedPt,\
-                #         cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),2,cv2.LINE_AA)
+                for idx,pts in self._currentGuitar.getStringCoordinates().items():
+                    #account for flip
+                    correctedPt = (640 -pts[0][0],pts[0][1])
+                    cv2.putText(frame,str(6-idx),correctedPt,\
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),2,cv2.LINE_AA)
                 if self._chordToShow:
                     chordText = self._chordToShow.upper()
                     cv2.putText(frame, chordText, (250,150),\

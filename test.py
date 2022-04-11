@@ -1,7 +1,7 @@
 import cv2
 import time
 import filters
-import houghProcessing
+import houghTransform
 import guitar
 
 
@@ -18,7 +18,7 @@ while(True):
     edges = filters.autoCannyEdge(gaussianFiltered)
     
     """Get the string lines"""
-    lines = houghProcessing.getHoughLinesP(edges)
+    lines = houghTransform.getHoughLinesP(edges)
         # Draw the lines
     if lines is not None:
         for i in range(0, len(lines)):
