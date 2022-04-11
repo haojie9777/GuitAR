@@ -54,6 +54,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 ![Screenshot](screenshots/default.png)
+![Screenshot](screenshots/default_1.png)
 ![Screenshot](screenshots/c_chord.png)
 ![Screenshot](screenshots/d_chord.png)
 ![Screenshot](screenshots/g_chord.png)
